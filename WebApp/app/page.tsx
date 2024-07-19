@@ -88,10 +88,9 @@ export default function Home() {
                   <Button
                     variant={"ghost"}
                     onClick={() => {
-                      fileInputRef.current.click();
-                      // const file = document.createElement("input");
-                      // file.type = "file";
-                      // file.click();
+                      if (fileInputRef.current) {
+                        fileInputRef.current.click();
+                      }
                     }}
                   >
                     <AiOutlineUpload size={25} />

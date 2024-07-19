@@ -9,12 +9,13 @@ RUN apt update && apt install -y ffmpeg git
 RUN pip3 install git+https://github.com/sidpremkumar/speechbox
 RUN pip3 install transformers huggingface-hub pyannote.audio torch optimodel-py accelerate
 
+COPY . .
+
 # Generate prisma
 ARG DATABASE_URL
 ARG PRISMA_CLIENT="prisma-client-py"
-RUN prisma generate --schema ./schema.prisma
+RUN prisma generate
 
-COPY . .
 
 # Sleep infinity as an entrypoint
 CMD ["sleep", "infinity"]

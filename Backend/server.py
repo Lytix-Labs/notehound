@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydub import AudioSegment
 from prisma import Prisma
 from transformers import AutoModelForSpeechSeq2Seq, AutoProcessor, pipeline
+import numpy as np
 
 
 from pyannote.audio import Pipeline
@@ -106,14 +107,15 @@ def format_as_transcription(raw_segments):
     )
 
 
-async def processAudio(data, sampleRate):
+def processAudio(data, sampleRate):
     """
     Start transcribing
     """
-    outputs = pipeline(data.copy())
+    logger.info("Processing audio...")
+    npData = np.array(data)
+    outputs = pipeline(npData)
     transcription = format_as_transcription(outputs)
-    print("transcription", transcription)
-    pass
+    logger.info("transcription", transcription)
 
 
 @app.on_event("startup")
@@ -123,9 +125,7 @@ async def startup():
 
 @app.post(f"{baseURL}/uploadAudio")
 async def upload(file: UploadFile = None):
-    print("file222", file)
     format = file.content_type
-    print(">>FORMAT", format)
 
     if format not in [
         "audio/webm;codecs=opus",
@@ -146,11 +146,12 @@ async def upload(file: UploadFile = None):
         if format in ["audio/webm;codecs=opus", "audio/ogg;codecs=opus"]
         else "m4a"
     )
-    sound = AudioSegment.from_file(opus_data, codec=codec)
+    if codec == "opus":
+        sound = AudioSegment.from_file(opus_data, codec=codec)
+    else:
+        sound = AudioSegment.from_file(opus_data)
     data = sound.get_array_of_samples()
     sampleRate = sound.frame_rate
-
-    print("sampleRate", sampleRate, data)
 
     """
     Save this in our database as processing
@@ -158,14 +159,17 @@ async def upload(file: UploadFile = None):
     newData = await prisma.meetingsummary.create(
         data={"processing": True, "userEmail": "sid@lytix.co"}
     )
-    BackgroundTasks.add_task(processAudio, data, sampleRate)
+    tasks = BackgroundTasks()
+    tasks.add_task(processAudio, data, sampleRate)
 
     """
     Return the user the Id of this meeting
     """
     response = {"id": newData.id}
     responseFormatted = json.dumps(response, default=json_serial)
-    return JSONResponse(status_code=200, content=responseFormatted)
+    finalResponse = JSONResponse(status_code=200, content=responseFormatted)
+    finalResponse.background = tasks
+    return finalResponse
 
 
 @app.get(baseURL + "/getAllNotes")
