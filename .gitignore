@@ -109,3 +109,7 @@ dist
 .vscode-test
 
 # End Generation Here
+
+
+**__pycache__
+**/venv

@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+    provider      = env("PRISMA_CLIENT")
+    // This will liekly break things when we move to ci/cd, need
+    // to run prisma generate on ci/cd i think
+    binaryTargets = ["native"]
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model MeetingSummary {
+    id        String    @id @default(uuid())
+    createdAt DateTime  @default(now())
+    userEmail String
+    updatedAt DateTime?
+
+    processing Boolean @default(true)
+
+    title    String?
+    duration Int?
+    summary  String?
+}
