@@ -27,7 +27,7 @@ export default function Home() {
   >(undefined);
   const [fileUploading, setFileUploading] = useState<boolean>(false);
 
-  const handleFileUpload = async (event) => {
+  const handleFileUpload = async (event: any) => {
     // do something with event data
     setFileUploading(true);
 
