@@ -68,6 +68,16 @@ class HttpClient {
       mode: "no-cors",
     });
   }
+
+  /**
+   * Check if the user is logged in
+   */
+  async getUserIsLoggedIn() {
+    const response = await fetch(`${this.baseURL}/getUserIsLoggedIn`, {
+      credentials: "include",
+    });
+    return JSON.parse(await response.json());
+  }
 }
 
 const HttpClientInstance = new HttpClient();

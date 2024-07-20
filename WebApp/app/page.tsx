@@ -14,7 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 import HttpClientInstance from "@/httpClient/HttpClient";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./globals.css";
 
 /**
@@ -55,6 +55,16 @@ export default function Login() {
       setIsLoading(false);
     }
   }
+
+  useEffect(() => {
+    Promise.resolve().then(async () => {
+      const userIsLoggedIn = await HttpClientInstance.getUserIsLoggedIn();
+      if (userIsLoggedIn.success) {
+        router.push("/home/");
+      }
+    });
+  }, []);
+
   return (
     <div className="bg-[#17181c] w-screen h-screen flex items-center justify-center">
       <Card className="]">

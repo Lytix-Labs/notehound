@@ -480,6 +480,11 @@ async def session_login(request: Request):
         )
 
 
+@app.get(baseURL + "/getUserIsLoggedIn")
+async def getUserIsLoggedIn(request: Request):
+    return JSONResponse(status_code=200, content={"success": True})
+
+
 @app.get("/health")
 async def health():
     return {"success": True}
