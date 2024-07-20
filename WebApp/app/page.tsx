@@ -21,7 +21,7 @@ import "./globals.css";
  * @param {string} name The cookie name.
  * @return {?string} The corresponding cookie value to lookup.
  */
-export function getCookie(name: string) {
+function getCookie(name: string) {
   var v = document.cookie.match("(^|;) ?" + name + "=([^;]*)(;|$)");
   return v ? v[2] : null;
 }
@@ -40,7 +40,7 @@ export default function Login() {
       const csrfToken = getCookie("_xsrf");
 
       try {
-        await HttpClientInstance.getGoogleCookie(idToken, csrfToken);
+        await HttpClientInstance.getGoogleCookie(idToken, csrfToken ?? "");
       } catch (err) {
         throw err;
       }
