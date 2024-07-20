@@ -6,16 +6,19 @@ COPY req.txt req.txt
 RUN pip3 install  -r req.txt
 
 RUN apt update && apt install -y ffmpeg git
-RUN pip3 install transformers huggingface-hub pyannote.audio torch optimodel-py accelerate nest_asyncio
+RUN pip3 install transformers huggingface-hub pyannote.audio torch optimodel-py accelerate nest_asyncio firebase_admin
 RUN pip3 install git+https://github.com/sidpremkumar/speechbox
 
-COPY . .
+# First copy over Prisma file
+COPY schema.prisma schema.prisma
 
 # Generate prisma
 ARG DATABASE_URL
 ARG PRISMA_CLIENT="prisma-client-py"
 RUN prisma generate
 
+# Then copy over everything else
+COPY . .
 
 # Sleep infinity as an entrypoint
 CMD ["sleep", "infinity"]

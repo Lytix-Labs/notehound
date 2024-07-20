@@ -13,6 +13,7 @@ from optimodel import queryModel
 from optimodel_server_types import ModelMessage, ModelTypes
 from multiprocessing import Process
 import nest_asyncio
+import uvloop
 
 
 from pyannote.audio import Pipeline
@@ -160,8 +161,8 @@ class _BackgroundTaskQueue:
 
     @staticmethod
     def _run_async_function(functionToStart, args):
-        nest_asyncio.apply()
-        asyncio.run(functionToStart(*args))
+        # nest_asyncio.apply()
+        uvloop.run(functionToStart(*args))
 
 
 BackgroundTaskQueue = _BackgroundTaskQueue()
@@ -261,7 +262,7 @@ async def startProcessAudio(data, sampleRate, id):
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     # Dont block the call to get the session cookie in the first place
-    if request.url.path == "/api/v1/auth/google":
+    if request.url.path == "/api/v1/auth/google" or request.url.path == "/health":
         return await call_next(request)
 
     sessionCookie = request.cookies.get("session")
@@ -475,4 +476,4 @@ def json_serial(obj):
 
 
 if __name__ == "__main__":
-    uvicorn.run(app, loop="asyncio", port=4040)
+    uvicorn.run(app, loop="asyncio", port=4040, host="0.0.0.0", log_level="debug")

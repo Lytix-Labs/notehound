@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import HttpClientInstance from "@/httpClient/HttpClient";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import "./globals.css";
@@ -58,6 +59,12 @@ export default function Login() {
     <div className="bg-slate-800 w-screen h-screen flex items-center justify-center">
       <Card>
         <CardHeader>
+          <Image
+            src="/lytix-notes-logo.png"
+            alt="Lytix Logo"
+            width={250}
+            height={250}
+          />
           <CardTitle className="text-center">Notes</CardTitle>
           <CardDescription className="text-center">By Lytix</CardDescription>
         </CardHeader>
