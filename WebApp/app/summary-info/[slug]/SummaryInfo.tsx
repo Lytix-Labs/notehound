@@ -58,7 +58,11 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
             {(summaryData || processingResult) && (
               <div>
                 {/* Back button */}
-                <Button variant="ghost" onClick={() => router.back()}>
+                <Button
+                  variant="link"
+                  className="flex"
+                  onClick={() => router.back()}
+                >
                   <MdArrowBackIosNew size={35} color="white" />
                 </Button>
               </div>
@@ -89,7 +93,7 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
             {(summaryData || processingResult) && (
               <div>
                 {/* Settings button */}
-                <Button variant="ghost" onClick={() => setOpenSettings(true)}>
+                <Button variant="link" onClick={() => setOpenSettings(true)}>
                   <RiSettings5Fill size={35} color="white" />
                 </Button>
               </div>
