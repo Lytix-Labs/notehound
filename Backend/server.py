@@ -12,8 +12,8 @@ import numpy as np
 from optimodel import queryModel
 from optimodel_server_types import ModelMessage, ModelTypes
 from multiprocessing import Process
-import nest_asyncio
 import uvloop
+from torch.multiprocessing import Pool, Process, set_start_method
 
 
 from pyannote.audio import Pipeline
@@ -148,7 +148,7 @@ class _BackgroundTaskQueue:
         # Start the function in a new process
         logger.info(f"Starting sub-process...")
         backgroundProcess = Process(
-            target=self._run_async_function, args=(functionToStart, args)
+            target=self._run_async_function, args=(functionToStart, args), daemon=True
         )
         backgroundProcess.start()
         while backgroundProcess.is_alive():
@@ -476,4 +476,8 @@ def json_serial(obj):
 
 
 if __name__ == "__main__":
+    try:
+        set_start_method("spawn")
+    except Exception as e:
+        logger.error("Error setting start method", e)
     uvicorn.run(app, loop="asyncio", port=4040, host="0.0.0.0", log_level="debug")
