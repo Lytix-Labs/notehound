@@ -49,10 +49,10 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
 
   return (
     <>
-      <Sheet open={openSettings} onOpenChange={setOpenSettings}>
-        <SummarySettings id={id} />
-      </Sheet>
-      <div className="bg-slate-800 w-screen h-screen overflow-y-scroll">
+      <div className="bg-[#17181c] w-screen h-screen overflow-y-scroll">
+        <Sheet open={openSettings} onOpenChange={setOpenSettings}>
+          <SummarySettings id={id} />
+        </Sheet>
         <div className="flex flex-col items-center justify-center pt-5 w-full">
           <div className="flex items-center justify-center">
             {(summaryData || processingResult) && (

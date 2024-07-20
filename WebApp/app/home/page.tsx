@@ -55,11 +55,11 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-slate-800 w-screen h-screen">
+    <div className="bg-[#17181c] w-screen h-screen">
       <div className="flex flex-col items-center justify-center pt-5 w-full">
-        <Card>
+        <Card className="">
           <div className="p-3 flex items-center justify-center flex-col">
-            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-black">
               Record
             </h1>
             <div className="py-1 flex gap-1 items-center justify-center w-full">
