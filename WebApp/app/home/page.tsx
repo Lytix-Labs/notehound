@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import HttpClientInstance from "@/httpClient/HttpClient";
 import dayjs from "dayjs";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AudioRecorder } from "react-audio-voice-recorder";
@@ -57,11 +58,19 @@ export default function Home() {
   return (
     <div className="bg-[#17181c] w-screen h-screen">
       <div className="flex flex-col items-center justify-center pt-5 w-full">
-        <Card className="">
+        <Card className="flex">
           <div className="p-3 flex items-center justify-center flex-col">
-            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-black">
-              Record
-            </h1>
+            <div className="flex items-center justify-center gap-2">
+              <Image
+                src="/lytix-notes-logo.png"
+                alt="Lytix Logo"
+                width={100}
+                height={100}
+              />
+              <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-black">
+                Record
+              </h1>
+            </div>
             <div className="py-1 flex gap-1 items-center justify-center w-full">
               {fileUploading === false ? (
                 <>
@@ -128,17 +137,22 @@ export default function Home() {
                         <Button
                           key={item.id}
                           variant={"ghost"}
-                          className="w-full"
+                          size="noPadding"
+                          className="h-full m-1"
                           onClick={() => {
                             router.push(`/summary-info/${item.id}`);
                           }}
                         >
-                          <div className="flex items-center justify-start w-full rounded-md border border-gray-400  gap-2">
-                            <MdOutlineKeyboardArrowRight />
-                            <p className="font-semibold ">{item.name}</p>
-                            <p className="text-muted-foreground">
-                              [{dayjs(item.date).format("DD/MM/YYYY HH:mm")}]
-                            </p>
+                          <div className="flex items-center justify-start w-full rounded-md border border-gray-400  gap-2 p-1 ">
+                            <MdOutlineKeyboardArrowRight size={50} />
+                            <div>
+                              <p className="font-semibold w-full h-full text-wrap flex ">
+                                {item.name}
+                              </p>
+                              <p className="text-muted-foreground italic text-sm">
+                                {dayjs(item.date).format("DD/MM/YYYY HH:mm")}
+                              </p>
+                            </div>
                           </div>
                         </Button>
                       );
