@@ -6,8 +6,8 @@ COPY req.txt req.txt
 RUN pip3 install  -r req.txt
 
 RUN apt update && apt install -y ffmpeg git
+RUN pip3 install transformers huggingface-hub pyannote.audio torch optimodel-py accelerate nest_asyncio
 RUN pip3 install git+https://github.com/sidpremkumar/speechbox
-RUN pip3 install transformers huggingface-hub pyannote.audio torch optimodel-py accelerate
 
 COPY . .
 

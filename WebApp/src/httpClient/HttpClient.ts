@@ -16,6 +16,7 @@ class HttpClient {
     const response = await fetch(`${this.baseURL}/uploadAudio`, {
       method: "POST",
       body: formData,
+      credentials: "include",
     });
     return JSON.parse(await response.json());
   }
@@ -24,7 +25,9 @@ class HttpClient {
    * Get a summary given an id
    */
   async getSummary(id: string) {
-    const response = await fetch(`${this.baseURL}/getSummary/${id}`);
+    const response = await fetch(`${this.baseURL}/getSummary/${id}`, {
+      credentials: "include",
+    });
     return response.json();
   }
 
@@ -32,8 +35,38 @@ class HttpClient {
    * Get all notes for a user
    */
   async getAllNotes() {
-    const response = await fetch(`${this.baseURL}/getAllNotes`);
+    const response = await fetch(`${this.baseURL}/getAllNotes`, {
+      credentials: "include",
+    });
     return JSON.parse(await response.json());
+  }
+
+  /**
+   * Delete a summary given an id
+   */
+  async deleteSummary(id: string) {
+    const response = await fetch(`${this.baseURL}/deleteSummary/${id}`, {
+      method: "POST",
+      credentials: "include",
+      mode: "no-cors",
+    });
+  }
+
+  /**
+   * Get and set session cookie
+   */
+  async getGoogleCookie(idToken: string, csrfToken: string) {
+    const response = await fetch(`${this.baseURL}/auth/google`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Credentials": "true",
+      },
+      body: JSON.stringify({ idToken, csrfToken }),
+      credentials: "include",
+      mode: "no-cors",
+    });
   }
 }
 

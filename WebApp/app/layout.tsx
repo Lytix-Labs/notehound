@@ -1,3 +1,4 @@
+import ToastWrapper from "@/ToastWrapper";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -17,7 +18,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={GeistSans.className}>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <ToastWrapper>{children}</ToastWrapper>
+      </body>
     </html>
   );
 }
