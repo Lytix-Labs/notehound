@@ -529,22 +529,27 @@ async def updateSummary(request: Request):
     return JSONResponse(status_code=200, content={"success": True})
 
 @app.get(baseURL + "/search/{query}")
-async def search(query: str):
+async def search(query: str, request: Request):
+    userEmail = request.state.userEmail
     queryEmbeddings = model.encode([query])
     queryEmbedding = queryEmbeddings[0].tolist()
+    
     """
     Search both pinecone indexs
     """
     matchingTranscripts = transcriptIndex.query(
-        top_k=5,
+        top_k=10,
         vector=queryEmbedding,
-        include_metadata=True
+        include_metadata=True,
+        namespace=f"nh-{userEmail}"
     )
     matchingSummaries = summaryIndex.query(
-        top_k=5,
+        top_k=10,
         vector=queryEmbedding,
-        include_metadata=True
+        include_metadata=True,
+        namespace=f"nh-{userEmail}"
     )
+    print(matchingSummaries)
     summariesToReturn = [{"meetingId": x['metadata']["meetingId"], "text": x['metadata']["text"]} for x in matchingSummaries.matches]
     transcriptsToReturn = [{"meetingId": x['metadata']["meetingId"], "text": x['metadata']["text"]} for x in matchingTranscripts.matches]
 
