@@ -326,7 +326,7 @@ Only respond with the title and nothing else"""
             sentenceEmbeddings = model.encode(sentences)
             for index, sentence in enumerate(sentences):
                 finalTranscriptVectors.append({
-                    "id": uuid.uuid4(), 
+                    "id": str(uuid.uuid4()), 
                     "values": sentenceEmbeddings[index].tolist(), 
                     "metadata": {"speaker": speaker, "text": sentence, "meetingId": id}
                 })
@@ -343,7 +343,7 @@ Only respond with the title and nothing else"""
         embeddings = model.encode(summaryChunks)
         for index, chunk in enumerate(summaryChunks):
             finalSummaryVectors.append({
-                "id": uuid.uuid4(), 
+                "id": str(uuid.uuid4()), 
                 "values": embeddings[index].tolist(), 
                 "metadata": {"meetingId": id, "text": chunk}
             })

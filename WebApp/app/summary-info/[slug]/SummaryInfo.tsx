@@ -116,6 +116,7 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
         <Sheet open={openSettings} onOpenChange={setOpenSettings}>
           <SummarySettings
             id={id}
+            transcript={summaryData?.transcript ?? []}
             summary={summaryData?.summary ?? ""}
             title={summaryData?.name ?? ""}
             duration={summaryData?.duration ?? 0}

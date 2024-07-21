@@ -117,7 +117,7 @@ export default function Home() {
           <p className="scroll-m-20 text-xl font-extrabold tracking-tight lg:text-xl">
             Uploading meeting...
           </p>
-          <Progress value={50} />
+          <Progress value={progressBar} />
         </DialogContent>
       </Dialog>
       <div className="bg-[#17181c] min-h-screen">

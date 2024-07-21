@@ -1,6 +1,8 @@
 import Loading from "@/components/Loading";
 import { RootState } from "@/components/Redux/store";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 
 const SearchResults = ({ searchQuery }: { searchQuery: string }) => {
@@ -8,6 +10,7 @@ const SearchResults = ({ searchQuery }: { searchQuery: string }) => {
     (state: RootState) => state.meetingSummary.searchResults
   );
   console.log(searchResults);
+  const router = useRouter();
   return (
     <div className="w-full">
       <Card>
@@ -33,7 +36,36 @@ const SearchResults = ({ searchQuery }: { searchQuery: string }) => {
                     </p>
                   </div>
                 ) : (
-                  <div>{JSON.stringify(searchResults)}</div>
+                  <div>
+                    <p className="font-semibold">Transcripts</p>
+                    {searchResults["transcripts"].map((transcript) => (
+                      <Button
+                        key={transcript["meetingId"] + transcript["text"]}
+                        onClick={() =>
+                          router.push(
+                            `/summary-info/${transcript["meetingId"]}`
+                          )
+                        }
+                        variant={"secondary"}
+                      >
+                        <p className="p-1">- {transcript["text"]}</p>
+                      </Button>
+                    ))}
+
+                    <p>Summaries</p>
+                    {searchResults["transcripts"].map((transcript) => (
+                      <div
+                        key={transcript["meetingId"] + transcript["text"]}
+                        onClick={() =>
+                          router.push(
+                            `/summary-info/${transcript["meetingId"]}`
+                          )
+                        }
+                      >
+                        <p className="p-1">- {transcript["text"]}</p>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
             )}

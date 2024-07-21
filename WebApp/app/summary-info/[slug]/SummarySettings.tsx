@@ -26,14 +26,16 @@ const SummarySettings: React.FC<{
   title: string;
   duration: number;
   date: Date;
+  transcript: { text: string; speaker: string; timestamp: string[] }[];
   setSummaryData: (data: {
     id: string;
     summary: string;
     name: string;
     date: Date;
     duration: number;
+    transcript: { text: string; speaker: string; timestamp: string[] }[];
   }) => void;
-}> = ({ id, summary, title, date, duration, setSummaryData }) => {
+}> = ({ id, summary, title, date, duration, transcript, setSummaryData }) => {
   const { toast } = useToast();
   const router = useRouter();
   const dispatch = useDispatch();
@@ -69,7 +71,7 @@ const SummarySettings: React.FC<{
       title: "Title updated 🚀",
       description: "The title has been updated",
     });
-    setSummaryData({ id, summary, name: newTitle, date, duration });
+    setSummaryData({ id, summary, name: newTitle, date, duration, transcript });
     setOpenEditTitle(false);
   };
 
