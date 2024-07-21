@@ -61,75 +61,78 @@ export default function Home() {
   return (
     <div className="bg-[#17181c] min-h-screen">
       <div className="flex flex-col items-center justify-center pt-5 w-full pb-20 bg-[#17181c]">
-        <Card className="flex my-1">
-          <div className="p-3 flex items-center justify-center flex-col">
-            <div className="flex items-center justify-center gap-2 ] w-full ">
-              <Image
-                src="/lytix-notes-logo.png"
-                alt="Lytix Logo"
-                width={35}
-                height={35}
-              />
-              <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-2xl text-black">
-                NoteHound
-              </h1>
-            </div>
+        <div className="w-full">
+          <Card className="flex my-1 mx-3">
+            <div className="p-3 flex items-center justify-center flex-col">
+              <div className="flex items-center justify-center gap-2 ] w-full ">
+                <Image
+                  src="/lytix-notes-logo.png"
+                  alt="Lytix Logo"
+                  width={35}
+                  height={35}
+                />
+                <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-2xl text-black">
+                  NoteHound
+                </h1>
+              </div>
 
-            <div className="py-1 flex gap-1 items-center justify-center w-full">
-              {fileUploading === false ? (
-                <>
-                  <div
-                    onClick={() => {
-                      if (isRecording === false) {
-                        setIsRecording(true);
-                      } else {
-                        setIsRecording(false);
-                      }
-                    }}
-                  >
-                    <AudioRecorder
-                      onRecordingComplete={addAudioElement}
-                      audioTrackConstraints={{
-                        noiseSuppression: true,
-                        echoCancellation: true,
-                        // autoGainControl,
-                        // channelCount,
-                        // deviceId,
-                        // groupId,
-                        // sampleRate,
-                        // sampleSize,
-                      }}
-                      onNotAllowedOrFound={(err) => console.table(err)}
-                      downloadOnSavePress={false}
-                      downloadFileExtension="webm"
-                      mediaRecorderOptions={{
-                        audioBitsPerSecond: 128000,
-                      }}
-                      showVisualizer={true}
-                    />
-                  </div>
-
-                  {isRecording === false && (
-                    <Button
-                      variant={"ghost"}
+              <div className="py-1 flex gap-1 items-center justify-center w-full">
+                {fileUploading === false ? (
+                  <>
+                    <div
                       onClick={() => {
-                        if (fileInputRef.current) {
-                          fileInputRef.current.click();
+                        if (isRecording === false) {
+                          setIsRecording(true);
+                        } else {
+                          setIsRecording(false);
                         }
                       }}
                     >
-                      <AiOutlineUpload size={25} />
-                    </Button>
-                  )}
-                </>
-              ) : (
-                <div>
-                  <Loading />
-                </div>
-              )}
+                      <AudioRecorder
+                        onRecordingComplete={addAudioElement}
+                        audioTrackConstraints={{
+                          noiseSuppression: true,
+                          echoCancellation: true,
+                          // autoGainControl,
+                          // channelCount,
+                          // deviceId,
+                          // groupId,
+                          // sampleRate,
+                          // sampleSize,
+                        }}
+                        onNotAllowedOrFound={(err) => console.table(err)}
+                        downloadOnSavePress={false}
+                        downloadFileExtension="webm"
+                        mediaRecorderOptions={{
+                          audioBitsPerSecond: 128000,
+                        }}
+                        showVisualizer={true}
+                      />
+                    </div>
+
+                    {isRecording === false && (
+                      <Button
+                        variant={"ghost"}
+                        onClick={() => {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.click();
+                          }
+                        }}
+                      >
+                        <AiOutlineUpload size={25} />
+                      </Button>
+                    )}
+                  </>
+                ) : (
+                  <div>
+                    <Loading />
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
+
         <div className="w-full px-2">
           <Card className="my-1  p-1 mx-1">
             <div className="w-full">
@@ -165,7 +168,7 @@ export default function Home() {
           </Card>
         </div>
 
-        <div className="w-full px-2 my-1 ">
+        <div className="w-full px-3 my-1 ">
           <Card>
             <div className="flex items-center justify-center gap-2 p-2">
               <IoRecordingSharp size={20} />

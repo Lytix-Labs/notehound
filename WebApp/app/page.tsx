@@ -73,7 +73,7 @@ export default function Login() {
 
   return (
     <div className="bg-[#17181c] w-screen h-screen flex items-center justify-center">
-      <Card className="]">
+      <Card className="">
         <CardHeader>
           <Image
             src="/lytix-notes-logo.png"

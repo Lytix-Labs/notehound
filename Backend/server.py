@@ -133,7 +133,8 @@ async def processAudio(data, sampleRate, id):
         diarization_pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=True
         )
-        diarization_pipeline = diarization_pipeline.to(torch.device('cuda:0'))
+        if torch.cuda.is_available():
+            diarization_pipeline = diarization_pipeline.to(torch.device('cuda:0'))
 
 
 
@@ -190,9 +191,8 @@ async def processAudio(data, sampleRate, id):
             )
 
 
-        npData = np.array(data)
         logger.info("Starting transcription")
-        outputs = finalPipeline(npData)
+        outputs = finalPipeline(data)
         logger.info(f"OUTPUTS: {outputs}")
         transcription = format_as_transcription(outputs)
         logger.info("Finished getting transcription, generating summary and title")
@@ -253,7 +253,6 @@ Only respond with the title and nothing else"""
                 "updatedAt": datetime.now(),
                 "title": meetingTitle,
                 "summary": meetingSummary,
-                "duration": 1000,
                 "processing": False,
             },
             where={"id": id},
@@ -344,7 +343,7 @@ async def upload(
     # Convert to 16kHz
     sound = sound.set_frame_rate(16000)
 
-    data = sound.get_array_of_samples()
+    data = np.array(sound.get_array_of_samples())
     sampleRate = sound.frame_rate
     duration = len(data) / sampleRate
     print(f"Duration: {duration}")
@@ -357,7 +356,7 @@ async def upload(
     newData = await prisma.meetingsummary.create(
         data={"processing": True, "userEmail": userEmail, "duration": duration}
     )
-    background_tasks.add_task(startProcessAudio, data, sampleRate, id=newData.id)
+    background_tasks.add_task(startProcessAudio, data=data, sampleRate=sampleRate, id=newData.id)
 
     """
     Return the user the Id of this meeting
@@ -396,57 +395,17 @@ async def getAudio(slug: str):
     # Try to pull this from the database
     existingData = await prisma.meetingsummary.find_first(where={"id": slug})
 
+    response = {
+        "name": existingData.title,
+        "date": existingData.createdAt,
+        "duration": existingData.duration,
+        "summary": existingData.summary,
+    }
+
     if existingData is None or existingData.processing is True:
-        response = {"processing": True}
+        response["processing"] = True
         responseFormatted = json.dumps(response, default=json_serial)
         return JSONResponse(status_code=200, content=responseFormatted)
-
-    response = {
-        "name": "Some Recording",
-        "date": datetime.now(),
-        "duration": 5000,
-        "summary": """# Meeting Summary
-
-## Action Items
-1. **Follow-Up Meeting**: SPEAKER_00 and SPEAKER_02 agreed to meet in Boston in the future to discuss further developments and ideas.
-2. **Idea Sharing**: Both parties agreed to share new ideas with each other as they arise.
-
-## Introduction and Background
-- **SPEAKER_00** and **SPEAKER_01** exchanged greetings and apologies for any delays.
-- **SPEAKER_00** asked if **SPEAKER_01** was a member of a program, to which **SPEAKER_01** responded that they were usually a civil clerk at Williamsburg.
-- **SPEAKER_00** and **SPEAKER_02** discussed their experiences in Boston, with **SPEAKER_02** mentioning they were born and raised there and went to school in Boston.
-
-## Discussion on Software and Program
-- **SPEAKER_00** expressed appreciation for the kindness of others and mentioned their support for the school and helping students learn about software.
-- **SPEAKER_02** agreed and appreciated the responsiveness, indicating a shared interest in educational opportunities.
-
-## Investment and Fund Management
-- **SPEAKER_00** discussed the challenges and strategies involved in managing funds and investments, mentioning the importance of being hands-on in building productivity functions.
-- **SPEAKER_02** elaborated on the complexities of fund management, including dealing with various strategic events and the importance of honesty in their operations.
-
-## Company and Product Development
-- **SPEAKER_02** provided a detailed history of their company's development, starting with a consumer-facing donation app and transitioning to analytics and AI observability.
-- They discussed the challenges and learnings from their initial project and the shift towards a technical problem-solving approach.
-- **SPEAKER_02** mentioned their focus on product-based analytics for chat-based apps and the importance of understanding user interactions beyond traditional click-through rates.
-
-## Model Management and Technical Challenges
-- **SPEAKER_02** talked about the difficulties in managing multiple models and the need for a simple framework to consolidate them.
-- They discussed the potential of open-sourcing internal tools and the importance of cost management and model analytics.
-- **SPEAKER_00** and **SPEAKER_02** explored the idea of a serverless GPU architecture to manage model hosting more efficiently.
-
-## Customer Research and Validation
-- **SPEAKER_02** emphasized the importance of customer research and validation to ensure they are working on the right problems.
-- They shared insights from their interactions with customers and the need to balance abstraction and control in their tools.
-
-## Future Plans and Collaboration
-- **SPEAKER_00** and **SPEAKER_02** discussed their plans to potentially return for demo day in the YC Summer Batch and start fundraising.
-- They agreed to keep each other updated on their progress and share learnings and experiences.
-
-## Conclusion
-- **SPEAKER_00** and **SPEAKER_02** expressed mutual appreciation for the conversation and looked forward to future interactions and collaborations.
-
-This summary captures the key points and discussions from the meeting, highlighting the main topics and action items for follow-up.""",
-    }
 
     responseFormatted = json.dumps(response, default=json_serial)
     return JSONResponse(status_code=200, content=responseFormatted)

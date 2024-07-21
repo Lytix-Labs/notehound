@@ -8,8 +8,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
 import { Sheet } from "@/components/ui/sheet";
 import HttpClientInstance from "@/httpClient/HttpClient";
+import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MdArrowBackIosNew } from "react-icons/md";
@@ -39,8 +41,8 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
 
       if (parsed.processing) {
         setProcessingResult(true);
-        return;
       }
+      console.log(parsed);
 
       parsed["date"] = new Date(parsed.date);
       setSummaryData(parsed);
@@ -63,12 +65,12 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
                   className="flex"
                   onClick={() => router.back()}
                 >
-                  <MdArrowBackIosNew size={35} color="white" />
+                  <MdArrowBackIosNew size={30} color="white" />
                 </Button>
               </div>
             )}
-            {summaryData && (
-              <Card>
+            {summaryData && !processingResult && (
+              <Card className="rounded-sm">
                 <CardHeader>
                   <CardTitle className="text-center">
                     {summaryData.name}
@@ -80,94 +82,111 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
                 </CardHeader>
               </Card>
             )}
-            {processingResult && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-center">Processing</CardTitle>
-                  <CardDescription className="text-center">
-                    Still processing, check back later
-                  </CardDescription>
-                </CardHeader>
+            {processingResult && summaryData && (
+              <Card className="px-2 py-1 rounded-sm">
+                <CardTitle className="text-center">Processing</CardTitle>
+                <CardDescription className="text-center">
+                  {summaryData.date.toLocaleDateString()} -{" "}
+                  {(summaryData.duration / 60).toFixed(2)} minutes
+                </CardDescription>
               </Card>
             )}
             {(summaryData || processingResult) && (
               <div>
                 {/* Settings button */}
                 <Button variant="link" onClick={() => setOpenSettings(true)}>
-                  <RiSettings5Fill size={35} color="white" />
+                  <RiSettings5Fill size={30} color="white" />
                 </Button>
               </div>
             )}
           </div>
-          <Card className="mx-1 mb-2 mt-3 mb-20">
-            {summaryData === undefined ? (
+          <Card className="mx-3 mb-2 mt-3 rounded-sm">
+            {summaryData === undefined && !processingResult ? (
               <div className=" px-5 py-5 flex items-center justify-center">
                 <Loading />
               </div>
             ) : (
-              <div className="p-1 ">
-                <ReactMarkdown
-                  remarkPlugins={[remarkGfm]}
-                  components={{
-                    p({ children }) {
-                      return (
-                        <p className="leading-7 [&:not(:first-child)]:mt-6">
-                          {children}
-                        </p>
-                      );
-                    },
-                    h1({ children }) {
-                      return (
-                        <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
-                          {children}
-                        </h1>
-                      );
-                    },
-                    h2({ children }) {
-                      return (
-                        <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
-                          {children}
-                        </h2>
-                      );
-                    },
-                    h3({ children }) {
-                      return (
-                        <h3 className="mt-8 scroll-m-20 text-2xl font-semibold tracking-tight">
-                          {children}
-                        </h3>
-                      );
-                    },
-                    ol({ children }) {
-                      return (
-                        <ol className="list-inside list-decimal">{children}</ol>
-                      );
-                    },
-                    ul({ children }) {
-                      return (
-                        <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
-                          {children}
-                        </ul>
-                      );
-                    },
-                    li({ children }) {
-                      return (
-                        <li className="mb-2 list-item list-inside">
-                          {children}
-                        </li>
-                      );
-                    },
-                    blockquote({ children }) {
-                      return (
-                        <blockquote className="relative border-s-4 border-gray-800 bg-slate-200 pl-2 ps-4 sm:ps-6">
-                          {children}
-                        </blockquote>
-                      );
-                    },
-                  }}
-                >
-                  {summaryData.summary}
-                </ReactMarkdown>
-              </div>
+              <>
+                {processingResult && summaryData ? (
+                  <div className=" px-5 py-5 flex items-center justify-center">
+                    <div className="max-w-[300px] min-w-[300px]">
+                      <Progress
+                        value={
+                          (dayjs().diff(summaryData?.date, "seconds") /
+                            summaryData.duration) *
+                          100
+                        }
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-1 ">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        p({ children }) {
+                          return (
+                            <p className="leading-7 [&:not(:first-child)]:mt-6">
+                              {children}
+                            </p>
+                          );
+                        },
+                        h1({ children }) {
+                          return (
+                            <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl">
+                              {children}
+                            </h1>
+                          );
+                        },
+                        h2({ children }) {
+                          return (
+                            <h2 className="mt-10 scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight transition-colors first:mt-0">
+                              {children}
+                            </h2>
+                          );
+                        },
+                        h3({ children }) {
+                          return (
+                            <h3 className="mt-8 scroll-m-20 text-2xl font-semibold tracking-tight">
+                              {children}
+                            </h3>
+                          );
+                        },
+                        ol({ children }) {
+                          return (
+                            <ol className="list-inside list-decimal">
+                              {children}
+                            </ol>
+                          );
+                        },
+                        ul({ children }) {
+                          return (
+                            <ul className="my-6 ml-6 list-disc [&>li]:mt-2">
+                              {children}
+                            </ul>
+                          );
+                        },
+                        li({ children }) {
+                          return (
+                            <li className="mb-2 list-item list-inside">
+                              {children}
+                            </li>
+                          );
+                        },
+                        blockquote({ children }) {
+                          return (
+                            <blockquote className="relative border-s-4 border-gray-800 bg-slate-200 pl-2 ps-4 sm:ps-6">
+                              {children}
+                            </blockquote>
+                          );
+                        },
+                      }}
+                    >
+                      {summaryData.summary}
+                    </ReactMarkdown>
+                  </div>
+                )}
+              </>
             )}
           </Card>
         </div>
