@@ -49,7 +49,7 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
     });
   }, [id]);
 
-  let transcriptString = "## Loading...";
+  let transcriptString = "";
   if (summaryData?.transcript) {
     transcriptString = "## Transcript\n";
     summaryData.transcript.map(
@@ -244,15 +244,21 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
             </TabsContent>
             <TabsContent value="transcript">
               <Card className="mx-3 mb-2 mt-3 rounded-sm">
-                <div>
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    // @ts-ignore
-                    components={markdownComponents}
-                  >
-                    {transcriptString}
-                  </ReactMarkdown>
-                </div>
+                {transcriptString === "" ? (
+                  <div className=" px-5 py-5 flex items-center justify-center">
+                    <Loading />
+                  </div>
+                ) : (
+                  <div>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      // @ts-ignore
+                      components={markdownComponents}
+                    >
+                      {transcriptString}
+                    </ReactMarkdown>
+                  </div>
+                )}
               </Card>
             </TabsContent>
           </Tabs>

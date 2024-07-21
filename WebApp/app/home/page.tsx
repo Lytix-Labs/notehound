@@ -54,13 +54,10 @@ export default function Home() {
      */
     Promise.resolve().then(async () => {
       let newProgressBarValue = 0;
-      for (let i = 0; i < 100; i++) {
+      while (newProgressBarValue < 100) {
         await new Promise((resolve) =>
           setTimeout(resolve, Math.random() * 150)
         );
-        if (i >= 10) {
-          return;
-        }
         newProgressBarValue = 5 * 1.5;
         setProgressBar(newProgressBarValue);
       }
@@ -111,7 +108,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <div className="max-h-screen min-h-screen relative">
       <Dialog open={fileUploading === true}>
         <DialogContent>
           <p className="scroll-m-20 text-xl font-extrabold tracking-tight lg:text-xl">
@@ -120,8 +117,8 @@ export default function Home() {
           <Progress value={progressBar} />
         </DialogContent>
       </Dialog>
+      <MenuBar />
       <div className="bg-[#17181c] max-h-screen min-h-screen">
-        <MenuBar />
         <div className="flex flex-col   pt-5 w-full pb-20 bg-[#17181c] max-h-screen overflow-y-scroll">
           <div className="w-full">
             <Card className="flex my-1 mx-3">
@@ -243,6 +240,6 @@ export default function Home() {
           hidden
         />
       </div>
-    </>
+    </div>
   );
 }

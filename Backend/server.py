@@ -496,11 +496,15 @@ async def getAllNotes(request: Request):
 
 
 @app.get(baseURL + "/getSummary/{slug}")
-async def getAudio(slug: str):
+async def getAudio(slug: str, request: Request):
+    userEmail = request.state.userEmail
+
     # Try to pull this from the database
     existingData = await prisma.meetingsummary.find_first(where={"id": slug})
     # rawAudio = await prisma.mediasummaryraw.find_first(where={"meetingSummaryId": slug})
     transcript = await prisma.meetingtranscript.find_first(where={"meetingSummaryId": slug})
+
+
 
     response = {
         "name": existingData.title,
@@ -563,9 +567,23 @@ async def search(query: str, request: Request):
 
 @app.post(baseURL + "/deleteSummary/{slug}")
 async def deleteSummary(slug: str):
+    userEmail = request.state.userEmail
     await prisma.mediasummaryraw.delete(where={"meetingSummaryId": slug})
     await prisma.meetingtranscript.delete(where={"meetingSummaryId": slug})
     await prisma.meetingsummary.delete(where={"id": slug})
+    # Delete things in pinecone
+    transcriptIndex.delete(
+        filter={
+            "meetingId": slug
+        },
+        namespace=f"nh-{userEmail}"
+    )
+    summaryIndex.delete(
+        filter={
+            "meetingId": slug
+        },
+        namespace=f"nh-{userEmail}"
+    )
     return JSONResponse(status_code=200, content={"success": True})
 
 
