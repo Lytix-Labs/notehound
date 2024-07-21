@@ -78,6 +78,16 @@ class HttpClient {
     });
     return JSON.parse(await response.json());
   }
+
+  /**
+   * Get meeting data for the home page
+   */
+  async getMeetingData() {
+    const response = await fetch(`${this.baseURL}/getMeetingData`, {
+      credentials: "include",
+    });
+    return JSON.parse(await response.json());
+  }
 }
 
 const HttpClientInstance = new HttpClient();

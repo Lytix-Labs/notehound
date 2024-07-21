@@ -20,6 +20,7 @@ import {
 import dayjs, { Dayjs } from "dayjs";
 import { useSelector } from "react-redux";
 import { Area, AreaChart } from "recharts";
+import "../../../app/globals.css";
 import { RootState } from "../Redux/store";
 import LoadingComponent from "./LoadingComponent";
 import NoDataComponent from "./NoDataComponent";
@@ -78,10 +79,12 @@ const ShadCNLineGraph: React.FC<{
     .map((key, index) => {
       chartConfig[key] = {
         label: key,
-        color: `hsl(var(--chart-${index + 1}))`,
+        color: `hsl(var(--chart-${index}))`,
       };
     })
     .flat();
+
+  console.log(chartConfig);
 
   //   const timeScale = scaleTime()
   //     .domain([

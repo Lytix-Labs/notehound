@@ -29,6 +29,7 @@ export default function Home() {
   const [recodingData, setRecodingData] = useState<
     undefined | { id: string; name: string; date: Date; processing: boolean }[]
   >(undefined);
+  const [isRecording, setIsRecording] = useState<boolean>(false);
   const [fileUploading, setFileUploading] = useState<boolean>(false);
 
   const handleFileUpload = async (event: any) => {
@@ -53,13 +54,12 @@ export default function Home() {
   useEffect(() => {
     Promise.resolve().then(async () => {
       const response = await HttpClientInstance.getAllNotes();
-      // console.log(">>>response", response);
       setRecodingData(response["allNotes"]);
     });
   }, []);
 
   return (
-    <div className="bg-[#17181c]">
+    <div className="bg-[#17181c] min-h-screen">
       <div className="flex flex-col items-center justify-center pt-5 w-full pb-20 bg-[#17181c]">
         <Card className="flex my-1">
           <div className="p-3 flex items-center justify-center flex-col">
@@ -78,36 +78,49 @@ export default function Home() {
             <div className="py-1 flex gap-1 items-center justify-center w-full">
               {fileUploading === false ? (
                 <>
-                  <AudioRecorder
-                    onRecordingComplete={addAudioElement}
-                    audioTrackConstraints={{
-                      noiseSuppression: true,
-                      echoCancellation: true,
-                      // autoGainControl,
-                      // channelCount,
-                      // deviceId,
-                      // groupId,
-                      // sampleRate,
-                      // sampleSize,
-                    }}
-                    onNotAllowedOrFound={(err) => console.table(err)}
-                    downloadOnSavePress={false}
-                    downloadFileExtension="webm"
-                    mediaRecorderOptions={{
-                      audioBitsPerSecond: 128000,
-                    }}
-                    showVisualizer={true}
-                  />
-                  <Button
-                    variant={"ghost"}
+                  <div
                     onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.click();
+                      if (isRecording === false) {
+                        setIsRecording(true);
+                      } else {
+                        setIsRecording(false);
                       }
                     }}
                   >
-                    <AiOutlineUpload size={25} />
-                  </Button>
+                    <AudioRecorder
+                      onRecordingComplete={addAudioElement}
+                      audioTrackConstraints={{
+                        noiseSuppression: true,
+                        echoCancellation: true,
+                        // autoGainControl,
+                        // channelCount,
+                        // deviceId,
+                        // groupId,
+                        // sampleRate,
+                        // sampleSize,
+                      }}
+                      onNotAllowedOrFound={(err) => console.table(err)}
+                      downloadOnSavePress={false}
+                      downloadFileExtension="webm"
+                      mediaRecorderOptions={{
+                        audioBitsPerSecond: 128000,
+                      }}
+                      showVisualizer={true}
+                    />
+                  </div>
+
+                  {isRecording === false && (
+                    <Button
+                      variant={"ghost"}
+                      onClick={() => {
+                        if (fileInputRef.current) {
+                          fileInputRef.current.click();
+                        }
+                      }}
+                    >
+                      <AiOutlineUpload size={25} />
+                    </Button>
+                  )}
                 </>
               ) : (
                 <div>
@@ -123,29 +136,26 @@ export default function Home() {
               <ShadCNLineGraph
                 title={"Past Week"}
                 subHeader="Data on your meeting habits"
-                generateData={function (
+                generateData={async (
                   startTime: dayjs.Dayjs,
                   endTime: dayjs.Dayjs | "now"
                 ): Promise<{
                   chartData: ShadCNLineGraphDataPoint[];
                   allKeys: string[];
-                }> {
+                }> => {
+                  const data = await HttpClientInstance.getMeetingData();
+                  const meetingsOver7Days = data["meetingsOver7Days"];
+                  const chartData: ShadCNLineGraphDataPoint[] = [];
+                  for (const meeting of meetingsOver7Days) {
+                    chartData.push({
+                      "Number of meetings": meeting["Number of meetings"],
+                      date: dayjs(meeting["date"]).unix(),
+                    });
+                    console.log(`chartData:`, chartData);
+                  }
                   return {
-                    chartData: [
-                      {
-                        something: 1,
-                        date: dayjs().subtract(1, "day").unix(),
-                      },
-                      {
-                        something: 0.5,
-                        date: dayjs().subtract(2, "day").unix(),
-                      },
-                      {
-                        something: 1,
-                        date: dayjs().subtract(3, "day").unix(),
-                      },
-                    ],
-                    allKeys: ["something"],
+                    chartData: chartData,
+                    allKeys: ["Number of meetings"],
                   };
                 }}
               />

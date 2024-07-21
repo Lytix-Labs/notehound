@@ -485,6 +485,65 @@ async def session_login(request: Request):
             status_code=500, content={"message": "Failed to create a session cookie"}
         )
 
+@app.get(baseURL + "/getMeetingData")
+async def getUserMeetingHabits(request: Request):
+    """
+    Get the following data
+    -> Number of meetings
+    """
+
+    meetingsOver7Days = await prisma.query_raw(f"""SELECT 
+    DATE_BIN('120 minutes', "createdAt" , TIMESTAMP '2001-01-01') AS interval_start,
+    COUNT(*)
+  FROM public."MeetingSummary"
+  where "userEmail"='{
+    request.state.userEmail
+  }' AND "createdAt" BETWEEN '{(datetime.utcnow() - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')}' AND '{datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')}'
+  group by
+    interval_start
+  order by
+    interval_start
+            """)
+    
+    meetingsOver7DaysFormatted = []
+    for meeting in meetingsOver7Days:
+        meetingsOver7DaysFormatted.append({
+            "date": meeting["interval_start"],
+            "Number of meetings": meeting["count"]
+        })
+    
+    
+
+    #     const queryResults: {
+    #   interval_start: string;
+    #   avg?: number;
+    #   min?: number;
+    #   max?: number;
+    #   sum?: number;
+    #   count: number;
+    # }[] = await prisma.$queryRawUnsafe(`
+ 
+    # `);
+    # console.log(
+    #   `>>>enddd, duration=${new Date().getTime() - startTime.getTime()}`
+    # );
+
+    print(meetingsOver7Days)
+
+
+    # finalData = []
+    # for meeting in numberOfMeetingsOver7Days:
+    #     finalData.append({
+    #         "date": meeting.createdAt.timestamp(),
+    #         "numberOfMeetings": 1
+    #     })
+
+
+    response = {
+        "meetingsOver7Days": meetingsOver7DaysFormatted
+    }
+    responseFormatted = json.dumps(response, default=json_serial)
+    return JSONResponse(status_code=200, content=responseFormatted)
 
 @app.get(baseURL + "/getUserIsLoggedIn")
 async def getUserIsLoggedIn(request: Request):
