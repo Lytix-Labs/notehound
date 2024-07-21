@@ -40,6 +40,8 @@ import sys
 import logging
 from datetime import datetime, date, timedelta
 
+nltk.download('punkt')
+
 login(os.environ["HF_TOKEN"])
 PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
 
@@ -48,7 +50,7 @@ pcClient = Pinecone(api_key=PINECONE_API_KEY)
 if "nh-summaries" not in pcClient.list_indexes().names():
     pcClient.create_index(
         name="nh-summaries",
-        dimension=2,
+        dimension=1024,
         metric="cosine",
         spec=ServerlessSpec(
             cloud='aws', 
@@ -58,7 +60,7 @@ if "nh-summaries" not in pcClient.list_indexes().names():
 if "nh-transcripts" not in pcClient.list_indexes().names():
     pcClient.create_index(
         name="nh-transcripts",
-        dimension=2,
+        dimension=1024,
         metric="cosine",
         spec=ServerlessSpec(
             cloud='aws', 
@@ -153,7 +155,7 @@ async def processAudio(data, sampleRate, id, userEmail):
     """
     Start transcribing
     """
-    logger.info("Processing audio...")
+    logger.info(f"Processing audio for id: {id}...")
 
     try:
         """ 
@@ -284,7 +286,8 @@ Only respond with the title and nothing else"""
         if existingData is None:
             logger.info(f"Meeting summary with id {id} not found, skipping update")
             return
-        await prisma.meetingsummary.update(
+        
+        summary = await prisma.meetingsummary.update(
             data={
                 "updatedAt": datetime.now(),
                 "title": meetingTitle,
@@ -299,8 +302,8 @@ Only respond with the title and nothing else"""
         logger.info("Saving transcript to database")
         await prisma.meetingtranscript.create(
             data={
-                "transcript": json.dumps(outputs),
-                "meetingSummaryId": id
+                "transcript": [json.dumps(x) for x in outputs],
+                "meetingSummaryId": id,
             }
         )
 
@@ -324,9 +327,8 @@ Only respond with the title and nothing else"""
             for index, sentence in enumerate(sentences):
                 finalTranscriptVectors.append({
                     "id": uuid.uuid4(), 
-                    "meetingId": id,
                     "values": sentenceEmbeddings[index].tolist(), 
-                    "metadata": {"speaker": speaker, "text": text}
+                    "metadata": {"speaker": speaker, "text": sentence, "meetingId": id}
                 })
                 
         # Save this to pinecone now
@@ -497,12 +499,16 @@ async def getAllNotes(request: Request):
 async def getAudio(slug: str):
     # Try to pull this from the database
     existingData = await prisma.meetingsummary.find_first(where={"id": slug})
+    # rawAudio = await prisma.mediasummaryraw.find_first(where={"meetingSummaryId": slug})
+    transcript = await prisma.meetingtranscript.find_first(where={"meetingSummaryId": slug})
 
     response = {
         "name": existingData.title,
         "date": existingData.createdAt,
         "duration": existingData.duration,
         "summary": existingData.summary,
+        "transcript": transcript.transcript,
+        # "rawAudio": rawAudio.rawAudio
     }
 
     if existingData is None or existingData.processing is True:
@@ -628,6 +634,7 @@ async def getUserMeetingHabits(request: Request):
 @app.get(baseURL + "/getUserIsLoggedIn")
 async def getUserIsLoggedIn(request: Request):
     return JSONResponse(status_code=200, content={"success": True})
+    
 
 
 @app.get("/health")

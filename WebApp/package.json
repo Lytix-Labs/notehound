@@ -31,6 +31,7 @@
     "lucide-react": "^0.411.0",
     "next": "14.2.5",
     "react": "^18",
+    "react-audio-player-component": "^1.2.4",
     "react-audio-voice-recorder": "^2.2.0",
     "react-dom": "^18",
     "react-icons": "^5.2.1",

@@ -41,9 +41,9 @@ model MediaSummaryRaw {
 }
 
 model MeetingTranscript {
-  id               String         @id @default(uuid())
-  createdAt        DateTime       @default(now())
-  meetingSummaryId String         @unique
-  meetingSummary   MeetingSummary @relation(fields: [meetingSummaryId], references: [id])
+  id               String          @id @default(uuid())
+  createdAt        DateTime        @default(now())
+  meetingSummaryId String?         @unique
+  meetingSummary   MeetingSummary? @relation(fields: [meetingSummaryId], references: [id])
   transcript       Json[]
 }
