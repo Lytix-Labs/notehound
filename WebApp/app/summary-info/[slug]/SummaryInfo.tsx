@@ -8,10 +8,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
 import { Sheet } from "@/components/ui/sheet";
 import HttpClientInstance from "@/httpClient/HttpClient";
-import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { MdArrowBackIosNew } from "react-icons/md";
@@ -110,13 +108,13 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
                 {processingResult && summaryData ? (
                   <div className=" px-5 py-5 flex items-center justify-center">
                     <div className="max-w-[300px] min-w-[300px]">
-                      <Progress
+                      {/* <Progress
                         value={
-                          (dayjs().diff(summaryData?.date, "seconds") /
-                            summaryData.duration) *
-                          100
+                          summaryData?.duration /
+                          dayjs().diff(summaryData?.date, "minutes")
                         }
-                      />
+                      /> */}
+                      <Loading size="lg" />
                     </div>
                   </div>
                 ) : (

@@ -66,11 +66,8 @@ export default function Home() {
     Promise.resolve().then(async () => {
       const response = await HttpClientInstance.getAllNotes();
       dispatch(setRecordingData({ recordingData: response["allNotes"] }));
-      console.log(`>>recordingData1`, recordingData, response);
     });
   }, []);
-
-  console.log(`>>recordingData2`, recordingData);
 
   return (
     <div className="bg-[#17181c] min-h-screen">
