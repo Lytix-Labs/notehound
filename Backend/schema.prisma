@@ -5,26 +5,45 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-    provider      = env("PRISMA_CLIENT")
-    // This will liekly break things when we move to ci/cd, need
-    // to run prisma generate on ci/cd i think
-    binaryTargets = ["native"]
+  provider      = env("PRISMA_CLIENT")
+  // This will liekly break things when we move to ci/cd, need
+  // to run prisma generate on ci/cd i think
+  binaryTargets = ["native"]
 }
 
 datasource db {
-    provider = "postgresql"
-    url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model MeetingSummary {
-    id        String    @id @default(uuid())
-    createdAt DateTime  @default(now())
-    userEmail String
-    updatedAt DateTime?
+  id        String    @id @default(uuid())
+  createdAt DateTime  @default(now())
+  userEmail String
+  updatedAt DateTime?
 
-    processing Boolean @default(true)
+  processing Boolean @default(true)
 
-    title    String?
-    duration Int?
-    summary  String?
+  title             String?
+  duration          Int?
+  summary           String?
+  MediaSummaryRaw   MediaSummaryRaw?
+  MeetingTranscript MeetingTranscript?
+}
+
+model MediaSummaryRaw {
+  id               String         @id @default(uuid())
+  createdAt        DateTime       @default(now())
+  meetingSummaryId String         @unique
+  meetingSummary   MeetingSummary @relation(fields: [meetingSummaryId], references: [id])
+  audioBytes       Bytes
+  sampleRate       Int
+}
+
+model MeetingTranscript {
+  id               String         @id @default(uuid())
+  createdAt        DateTime       @default(now())
+  meetingSummaryId String         @unique
+  meetingSummary   MeetingSummary @relation(fields: [meetingSummaryId], references: [id])
+  transcript       Json
 }

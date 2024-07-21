@@ -53,22 +53,31 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
         <Sheet open={openSettings} onOpenChange={setOpenSettings}>
           <SummarySettings id={id} summary={summaryData?.summary ?? ""} />
         </Sheet>
-        <div className="flex flex-col items-center justify-center pt-5 w-full">
+        <div className="flex w-full mt-3">
+          <div>
+            {/* Back button */}
+            <Button
+              variant="link"
+              className="flex"
+              onClick={() => router.back()}
+            >
+              <MdArrowBackIosNew size={30} color="white" />
+            </Button>
+          </div>
+
+          {(summaryData || processingResult) && (
+            <div className="flex w-full justify-end">
+              {/* Settings button */}
+              <Button variant="link" onClick={() => setOpenSettings(true)}>
+                <RiSettings5Fill size={30} color="white" />
+              </Button>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col items-center justify-center mt-3 w-full">
           <div className="flex items-center justify-center">
-            {(summaryData || processingResult) && (
-              <div>
-                {/* Back button */}
-                <Button
-                  variant="link"
-                  className="flex"
-                  onClick={() => router.back()}
-                >
-                  <MdArrowBackIosNew size={30} color="white" />
-                </Button>
-              </div>
-            )}
             {summaryData && !processingResult && (
-              <Card className="rounded-sm">
+              <Card className="rounded-sm mx-3">
                 <CardHeader>
                   <CardTitle className="text-center">
                     {summaryData.name}
@@ -88,14 +97,6 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
                   {(summaryData.duration / 60).toFixed(2)} minutes
                 </CardDescription>
               </Card>
-            )}
-            {(summaryData || processingResult) && (
-              <div>
-                {/* Settings button */}
-                <Button variant="link" onClick={() => setOpenSettings(true)}>
-                  <RiSettings5Fill size={30} color="white" />
-                </Button>
-              </div>
             )}
           </div>
           <Card className="mx-3 mb-2 mt-3 rounded-sm">

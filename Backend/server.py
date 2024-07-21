@@ -258,6 +258,15 @@ Only respond with the title and nothing else"""
             where={"id": id},
         )
 
+
+        # Also save the transcript to the database
+        await prisma.meetingtranscript.create(
+            data={
+                "transcript": transcription,
+                "meetingSummaryId": id
+            }
+        )
+
         logger.info(f"GOT RESPONSE FROM SUMMARY: {meetingSummary}")
 
     except Exception as e:
@@ -343,12 +352,12 @@ async def upload(
     # Convert to 16kHz
     sound = sound.set_frame_rate(16000)
 
-    data = np.array(sound.get_array_of_samples())
+    rawData = sound.get_array_of_samples()
+    data = np.array(rawData)
     sampleRate = sound.frame_rate
     duration = len(data) / sampleRate
-    print(f"Duration: {duration}")
-    print(f'Sample rate: {sampleRate}')
-    print(f'DataLen: {len(data)}')
+
+ 
 
     """
     Save this in our database as processing
@@ -356,6 +365,18 @@ async def upload(
     newData = await prisma.meetingsummary.create(
         data={"processing": True, "userEmail": userEmail, "duration": duration}
     )
+
+    """
+    Save this raw audio file to the database
+    """
+    await prisma.mediasummaryraw.create(
+        data={
+            "audioBytes": rawData,
+            "sampleRate": sampleRate,
+            "meetingSummaryId": newData.id
+        }
+    )
+
     background_tasks.add_task(startProcessAudio, data=data, sampleRate=sampleRate, id=newData.id)
 
     """
@@ -364,10 +385,7 @@ async def upload(
     response = {"id": newData.id}
     responseFormatted = json.dumps(response, default=json_serial)
     finalResponse = JSONResponse(status_code=200, content=responseFormatted)
-
-    # finalResponse.background = bt
     return finalResponse
-
 
 @app.get(baseURL + "/getAllNotes")
 async def getAllNotes(request: Request):

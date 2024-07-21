@@ -113,12 +113,6 @@ export default function Home() {
                           audioTrackConstraints={{
                             noiseSuppression: true,
                             echoCancellation: true,
-                            // autoGainControl,
-                            // channelCount,
-                            // deviceId,
-                            // groupId,
-                            // sampleRate,
-                            // sampleSize,
                           }}
                           onNotAllowedOrFound={(err) => console.table(err)}
                           downloadOnSavePress={false}
@@ -220,11 +214,11 @@ export default function Home() {
                             size={30}
                             className="min-w-[10%]"
                           />
-                          <div className="">
+                          <div className=" flex flex-col w-full">
                             <p className="font-semibold w-full h-full text-wrap flex text-left ">
                               {item.name}
                             </p>
-                            <p className="text-muted-foreground italic text-sm">
+                            <p className="text-muted-foreground italic text-xs text-left">
                               {dayjs(item.date).format("DD/MM/YYYY HH:mm")}
                             </p>
                           </div>
