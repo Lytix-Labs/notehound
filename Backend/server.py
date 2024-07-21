@@ -120,8 +120,6 @@ async def processAudio(data, sampleRate, id):
     """
     logger.info("Processing audio...")
 
-
-
     try:
         """ 
         First connect to prisma
@@ -135,8 +133,9 @@ async def processAudio(data, sampleRate, id):
         diarization_pipeline = Pipeline.from_pretrained(
             "pyannote/speaker-diarization-3.1", use_auth_token=True
         )
-        if torch.cuda.is_available():
-            diarization_pipeline = diarization_pipeline.to(torch.device("cuda:0"))
+        diarization_pipeline = diarization_pipeline.to(torch.device('cuda:0'))
+
+
 
         """
         Create our ASR pipeline (e.g. transcribing)
@@ -152,7 +151,7 @@ async def processAudio(data, sampleRate, id):
         model = AutoModelForSpeechSeq2Seq.from_pretrained(
             model_id, torch_dtype=torch_dtype, low_cpu_mem_usage=True, use_safetensors=True
         )
-        model.generation_config.language = "en"
+        model.generation_config.language = "en" 
         model.to(device)
 
         processor = AutoProcessor.from_pretrained(model_id)
@@ -167,9 +166,8 @@ async def processAudio(data, sampleRate, id):
             batch_size=16,
             return_timestamps=True,
             torch_dtype=torch_dtype,
-            device=device,
+            device=device
         )
-
 
         """
         Create our final pipeline with both ASR and Diarization

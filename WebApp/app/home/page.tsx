@@ -130,7 +130,7 @@ export default function Home() {
             </div>
           </div>
         </Card>
-        <div className="w-full">
+        <div className="w-full px-2">
           <Card className="my-1  p-1 mx-1">
             <div className="w-full">
               <ShadCNLineGraph
@@ -165,9 +165,9 @@ export default function Home() {
           </Card>
         </div>
 
-        <div className="w-full px-1 my-1 ">
+        <div className="w-full px-2 my-1 ">
           <Card>
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 p-2">
               <IoRecordingSharp size={20} />
 
               <h2 className="scroll-m-20  text-xl font-semibold tracking-tight first:mt-0">
