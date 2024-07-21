@@ -425,14 +425,6 @@ async def upload(
     """
     opus_data = BytesIO(file.file.read())
 
-    # codec = (
-    #     "opus"
-    #     if format in ["audio/webm;codecs=opus", "audio/ogg;codecs=opus"]
-    #     else "m4a"
-    # )
-    # if codec == "opus":
-    #     sound = AudioSegment.from_file(opus_data, codec=codec)
-    # else:
     sound = AudioSegment.from_file(opus_data)
 
     # Convert to 16kHz
@@ -443,8 +435,6 @@ async def upload(
     sampleRate = sound.frame_rate
     duration = len(data) / sampleRate
 
- 
-
     """
     Save this in our database as processing
     """
@@ -454,14 +444,15 @@ async def upload(
 
     """
     Save this raw audio file to the database
+    TODO: bring this back when we want to display audio files
     """
-    await prisma.mediasummaryraw.create(
-        data={
-            "rawAudio": [int(x) for x in rawData],
-            "sampleRate": sampleRate,
-            "meetingSummaryId": newData.id
-        }
-    )
+    # await prisma.mediasummaryraw.create(
+    #     data={
+    #         "rawAudio": [int(x) for x in rawData],
+    #         "sampleRate": sampleRate,
+    #         "meetingSummaryId": newData.id
+    #     }
+    # )
 
     background_tasks.add_task(startProcessAudio, data=data, sampleRate=sampleRate, id=newData.id, userEmail=userEmail)
 
@@ -503,8 +494,6 @@ async def getAudio(slug: str, request: Request):
     existingData = await prisma.meetingsummary.find_first(where={"id": slug})
     # rawAudio = await prisma.mediasummaryraw.find_first(where={"meetingSummaryId": slug})
     transcript = await prisma.meetingtranscript.find_first(where={"meetingSummaryId": slug})
-
-
 
     response = {
         "name": existingData.title,
@@ -572,18 +561,22 @@ async def deleteSummary(slug: str, request: Request):
     await prisma.meetingtranscript.delete(where={"meetingSummaryId": slug})
     await prisma.meetingsummary.delete(where={"id": slug})
     # Delete things in pinecone
-    transcriptIndex.delete(
+    allTranscriptValues = transcriptIndex.query(
         filter={
             "meetingId": slug
         },
-        namespace=f"nh-{userEmail}"
+        namespace=f"nh-{userEmail}",
+        include_values=False
     )
-    summaryIndex.delete(
+    transcriptIndex.delete(ids=[value.id for value in allTranscriptValues.matches])
+    allSummaryValues = summaryIndex.query(
         filter={
             "meetingId": slug
         },
-        namespace=f"nh-{userEmail}"
+        namespace=f"nh-{userEmail}",
+        include_values=False
     )
+    summaryIndex.delete(ids=[value.id for value in allSummaryValues.matches])
     return JSONResponse(status_code=200, content={"success": True})
 
 
