@@ -182,7 +182,7 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
                         },
                       }}
                     >
-                      {summaryData.summary}
+                      {summaryData?.summary ?? "No summary"}
                     </ReactMarkdown>
                   </div>
                 )}
