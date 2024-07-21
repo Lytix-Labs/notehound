@@ -84,6 +84,7 @@ export default function Home() {
         newSearchQuery
       );
       dispatch(setSearchResults({ searchResults: response }));
+      console.log(response);
     }
   };
 

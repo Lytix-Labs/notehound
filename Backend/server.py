@@ -325,7 +325,7 @@ Only respond with the title and nothing else"""
                 finalTranscriptVectors.append({
                     "id": uuid.uuid4(), 
                     "meetingId": id,
-                    "values": sentenceEmbeddings[index], 
+                    "values": sentenceEmbeddings[index].tolist(), 
                     "metadata": {"speaker": speaker, "text": text}
                 })
                 
@@ -338,11 +338,11 @@ Only respond with the title and nothing else"""
         # Now lets split up the summary into chunks
         summaryChunks = nltk.sent_tokenize(meetingSummary)
         finalSummaryVectors = []
-        for chunk in summaryChunks:
-            embedding = model.encode(chunk)
+        embeddings = model.encode(summaryChunks)
+        for index, chunk in enumerate(summaryChunks):
             finalSummaryVectors.append({
                 "id": uuid.uuid4(), 
-                "values": embedding, 
+                "values": embeddings[index].tolist(), 
                 "metadata": {"meetingId": id, "text": chunk}
             })
         
@@ -524,8 +524,7 @@ async def updateSummary(request: Request):
 @app.get(baseURL + "/search/{query}")
 async def search(query: str):
     queryEmbeddings = model.encode([query])
-    print(queryEmbeddings)
-    queryEmbedding = queryEmbeddings[0]
+    queryEmbedding = queryEmbeddings[0].tolist()
     """
     Search both pinecone indexs
     """
