@@ -63,65 +63,75 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center pt-5 w-full pb-20 bg-[#17181c]">
         <div className="w-full">
           <Card className="flex my-1 mx-3">
-            <div className="p-3 flex items-center justify-center flex-col">
-              <div className="flex items-center justify-center gap-2 ] w-full ">
-                <Image
-                  src="/lytix-notes-logo.png"
-                  alt="Lytix Logo"
-                  width={35}
-                  height={35}
-                />
-                <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-2xl text-black">
+            <div className="p-3 flex items-center justify-center w-full  ">
+              {isRecording === false && (
+                <div className="flex items-center justify-center gap-2 w-full ">
+                  <Image
+                    src="/lytix-notes-logo.png"
+                    alt="Lytix Logo"
+                    width={75}
+                    height={75}
+                  />
+                </div>
+              )}
+
+              <div className="py-1 flex gap-1 items-center justify-center w-full flex-col ">
+                <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-2xl text-black w-full">
                   NoteHound
                 </h1>
-              </div>
-
-              <div className="py-1 flex gap-1 items-center justify-center w-full">
                 {fileUploading === false ? (
                   <>
                     <div
-                      onClick={() => {
-                        if (isRecording === false) {
-                          setIsRecording(true);
-                        } else {
-                          setIsRecording(false);
-                        }
-                      }}
+                      className={`flex w-full ${
+                        isRecording === true
+                          ? "items-center justify-center"
+                          : "items-center justify-start"
+                      }`}
                     >
-                      <AudioRecorder
-                        onRecordingComplete={addAudioElement}
-                        audioTrackConstraints={{
-                          noiseSuppression: true,
-                          echoCancellation: true,
-                          // autoGainControl,
-                          // channelCount,
-                          // deviceId,
-                          // groupId,
-                          // sampleRate,
-                          // sampleSize,
-                        }}
-                        onNotAllowedOrFound={(err) => console.table(err)}
-                        downloadOnSavePress={false}
-                        downloadFileExtension="webm"
-                        mediaRecorderOptions={{
-                          audioBitsPerSecond: 128000,
-                        }}
-                        showVisualizer={true}
-                      />
-                    </div>
-
-                    {isRecording === false && (
-                      <Button
-                        variant={"ghost"}
+                      <div
                         onClick={() => {
-                          if (fileInputRef.current) {
-                            fileInputRef.current.click();
+                          if (isRecording === false) {
+                            setIsRecording(true);
+                          } else {
+                            setIsRecording(false);
                           }
                         }}
                       >
-                        <AiOutlineUpload size={25} />
-                      </Button>
-                    )}
+                        <AudioRecorder
+                          onRecordingComplete={addAudioElement}
+                          audioTrackConstraints={{
+                            noiseSuppression: true,
+                            echoCancellation: true,
+                            // autoGainControl,
+                            // channelCount,
+                            // deviceId,
+                            // groupId,
+                            // sampleRate,
+                            // sampleSize,
+                          }}
+                          onNotAllowedOrFound={(err) => console.table(err)}
+                          downloadOnSavePress={false}
+                          downloadFileExtension="webm"
+                          mediaRecorderOptions={{
+                            audioBitsPerSecond: 128000,
+                          }}
+                          showVisualizer={true}
+                        />
+                      </div>
+
+                      {isRecording === false && (
+                        <Button
+                          variant={"ghost"}
+                          onClick={() => {
+                            if (fileInputRef.current) {
+                              fileInputRef.current.click();
+                            }
+                          }}
+                        >
+                          <AiOutlineUpload size={25} />
+                        </Button>
+                      )}
+                    </div>
                   </>
                 ) : (
                   <div>
