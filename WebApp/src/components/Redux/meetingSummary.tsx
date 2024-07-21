@@ -4,11 +4,18 @@ export interface MeetingSummary {
   recordingData:
     | undefined
     | { id: string; name: string; date: Date; processing: boolean }[];
+  searchResults:
+    | undefined
+    | {
+        summaries: { meetingId: string; text: string }[];
+        transcripts: { meetingId: string; text: string }[];
+      };
 }
 export const counterSlice = createSlice({
   name: "meetingSummary",
   initialState: {
     recordingData: undefined,
+    searchResults: undefined,
   } as MeetingSummary,
   reducers: {
     setRecordingData: (
@@ -19,14 +26,18 @@ export const counterSlice = createSlice({
           | { id: string; name: string; date: Date; processing: boolean }[];
       }>
     ) => {
-      console.log(`>>BEING PASSED`, action.payload.recordingData);
       state.recordingData = action.payload.recordingData;
-      console.log(`>>state`, state.recordingData);
+    },
+    setSearchResults: (
+      state,
+      action: PayloadAction<{ searchResults: MeetingSummary["searchResults"] }>
+    ) => {
+      state.searchResults = action.payload.searchResults;
     },
   },
   selectors: {},
 });
 
-export const { setRecordingData } = counterSlice.actions;
+export const { setRecordingData, setSearchResults } = counterSlice.actions;
 
 export default counterSlice.reducer;

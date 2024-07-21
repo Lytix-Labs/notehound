@@ -1,25 +1,27 @@
 "use client";
 
 import Loading from "@/components/Loading";
-import { setRecordingData } from "@/components/Redux/meetingSummary";
+import {
+  setRecordingData,
+  setSearchResults,
+} from "@/components/Redux/meetingSummary";
 import { RootState } from "@/components/Redux/store";
-import ShadCNLineGraph, {
-  ShadCNLineGraphDataPoint,
-} from "@/components/ShadCNLineGraph/ShadCNLineGraph";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import { Input } from "@/components/ui/input";
 import HttpClientInstance from "@/httpClient/HttpClient";
-import dayjs from "dayjs";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AudioRecorder } from "react-audio-voice-recorder";
 import { AiOutlineUpload } from "react-icons/ai";
-import { IoRecordingSharp } from "react-icons/io5";
-import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import "../globals.css";
+
+import { MdClose, MdSearch } from "react-icons/md";
+import LookbackGraph from "./LookbackGraph";
+import SearchResults from "./SearchResults";
+import Summaries from "./Summaries";
 
 export default function Home() {
   const addAudioElement = async (blob: Blob) => {
@@ -36,6 +38,7 @@ export default function Home() {
 
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [fileUploading, setFileUploading] = useState<boolean>(false);
+  const [searchQuery, setSearchQuery] = useState<string>("");
 
   const handleFileUpload = async (event: any) => {
     // do something with event data
@@ -68,6 +71,21 @@ export default function Home() {
       dispatch(setRecordingData({ recordingData: response["allNotes"] }));
     });
   }, []);
+
+  const handleSearch = async (event: any) => {
+    const newSearchQuery = event.target.value;
+    setSearchQuery(newSearchQuery);
+
+    /**
+     * Wait for the query to be at least 3 characters long
+     */
+    if (newSearchQuery.length >= 3) {
+      const response = await HttpClientInstance.searchEmbeddings(
+        newSearchQuery
+      );
+      dispatch(setSearchResults({ searchResults: response }));
+    }
+  };
 
   return (
     <div className="bg-[#17181c] min-h-screen">
@@ -151,100 +169,38 @@ export default function Home() {
         <div className="w-full px-2">
           <Card className="my-1  p-1 mx-1">
             <div className="w-full">
-              <ShadCNLineGraph
-                title={"Past Week"}
-                subHeader="Data on your meeting habits"
-                generateData={async (
-                  startTime: dayjs.Dayjs,
-                  endTime: dayjs.Dayjs | "now"
-                ): Promise<{
-                  chartData: ShadCNLineGraphDataPoint[];
-                  allKeys: string[];
-                }> => {
-                  const data = await HttpClientInstance.getMeetingData();
-                  const meetingsOver7Days = data["meetingsOver7Days"];
-                  const chartData: ShadCNLineGraphDataPoint[] = [];
-                  for (const meeting of meetingsOver7Days) {
-                    chartData.push({
-                      "Number of summaries": meeting["Number of meetings"],
-                      date: dayjs(meeting["date"]).unix(),
-                    });
-                    // console.log(`chartData:`, chartData);
-                  }
-                  return {
-                    chartData: chartData,
-                    allKeys: ["Number of summaries"],
-                  };
-                }}
-              />
+              <div className="flex items-center justify-center gap-1">
+                <MdSearch size={25} />
+                <Input
+                  placeholder="Search across your summaries"
+                  onChange={handleSearch}
+                  value={searchQuery}
+                />
+                {searchQuery !== "" && (
+                  <Button
+                    variant={"link"}
+                    className="p-0 m-0"
+                    size="sm"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <MdClose size={15} />
+                  </Button>
+                )}
+              </div>
             </div>
           </Card>
         </div>
+        {searchQuery !== "" ? (
+          <div className="px-3 py-1 w-full ">
+            <SearchResults searchQuery={searchQuery} />
+          </div>
+        ) : (
+          <>
+            <LookbackGraph />
 
-        <div className="w-full px-3 my-1 ">
-          <Card>
-            <div className="flex items-center justify-center gap-2 p-2">
-              <IoRecordingSharp size={20} />
-
-              <h2 className="scroll-m-20  text-xl font-semibold tracking-tight first:mt-0">
-                Summaries
-              </h2>
-            </div>
-            <Separator />
-            <div className=" flex items-start justify-center flex-col w-full h-full">
-              {recordingData === undefined ? (
-                <div className="w-full flex items-center justify-center py-5">
-                  <Loading />
-                </div>
-              ) : (
-                <>
-                  {recordingData.map((item) => {
-                    return (
-                      <Button
-                        key={item.id}
-                        variant={"ghost"}
-                        size="noPadding"
-                        className="h-full w-full p-1 "
-                        onClick={() => {
-                          router.push(`/summary-info/${item.id}`);
-                        }}
-                      >
-                        <div className="flex items-center justify-start w-full rounded-md border border-gray-400  gap-2 p-1 ">
-                          <MdOutlineKeyboardArrowRight
-                            size={30}
-                            className="min-w-[10%]"
-                          />
-                          <div className=" flex flex-col w-full">
-                            <p className="font-semibold w-full h-full text-wrap flex text-left ">
-                              {item.name}
-                            </p>
-                            <p className="text-muted-foreground italic text-xs text-left">
-                              {dayjs(item.date).format("DD/MM/YYYY HH:mm")}
-                            </p>
-                          </div>
-                          {item.processing && (
-                            <div className="w-full h-full flex justify-end items-end">
-                              <div className="inline-block pr-2">
-                                <Loading size="sm" />
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </Button>
-                    );
-                  })}
-                  {recordingData.length === 0 && (
-                    <div className="w-full flex items-center justify-center py-5">
-                      <p className="text-muted-foreground">
-                        Start by taking your first recording
-                      </p>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </Card>
-        </div>
+            {recordingData && <Summaries recordingData={recordingData} />}
+          </>
+        )}
       </div>
       <input
         onChange={handleFileUpload}

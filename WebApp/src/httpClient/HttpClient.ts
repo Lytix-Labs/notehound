@@ -89,6 +89,17 @@ class HttpClient {
     const jsonResponse = await response.json();
     return JSON.parse(jsonResponse);
   }
+
+  /**
+   * Query against all embeddings
+   */
+  async searchEmbeddings(query: string) {
+    const response = await fetch(`${this.baseURL}/search/${query}`, {
+      credentials: "include",
+    });
+    const jsonResponse = await response.json();
+    return JSON.parse(jsonResponse);
+  }
 }
 
 const HttpClientInstance = new HttpClient();

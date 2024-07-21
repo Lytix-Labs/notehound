@@ -1,3 +1,4 @@
+import uuid
 from torch.multiprocessing import Pool, Process
 from torch.multiprocessing import set_start_method
 
@@ -21,7 +22,9 @@ from optimodel import queryModel
 from optimodel_server_types import ModelMessage, ModelTypes
 from multiprocessing import Process
 import uvloop
-
+from transformers import AutoModel, AutoTokenizer
+from sentence_transformers import SentenceTransformer
+import nltk
 
 from pyannote.audio import Pipeline
 import torch
@@ -30,6 +33,7 @@ from speechbox import ASRDiarizationPipeline
 import uvicorn
 import firebase_admin
 from firebase_admin import credentials, auth
+from pinecone import Pinecone, ServerlessSpec
 
 
 import sys
@@ -37,6 +41,38 @@ import logging
 from datetime import datetime, date, timedelta
 
 login(os.environ["HF_TOKEN"])
+PINECONE_API_KEY = os.environ.get("PINECONE_API_KEY")
+
+pcClient = Pinecone(api_key=PINECONE_API_KEY)
+# We have 2 index, one for transcripts one for meeting summaries
+if "nh-summaries" not in pcClient.list_indexes().names():
+    pcClient.create_index(
+        name="nh-summaries",
+        dimension=2,
+        metric="cosine",
+        spec=ServerlessSpec(
+            cloud='aws', 
+            region='us-east-1'
+        ) 
+    ) 
+if "nh-transcripts" not in pcClient.list_indexes().names():
+    pcClient.create_index(
+        name="nh-transcripts",
+        dimension=2,
+        metric="cosine",
+        spec=ServerlessSpec(
+            cloud='aws', 
+            region='us-east-1'
+        ) 
+    ) 
+transcriptIndex = pcClient.Index("nh-transcripts")
+summaryIndex = pcClient.Index("nh-summaries")
+
+"""
+Create our embedding objects
+"""
+model = SentenceTransformer('Alibaba-NLP/gte-large-en-v1.5', trust_remote_code=True)
+
 
 certificateConfigJSON = json.loads(os.environ["FIREBASE_CONFIG"])
 # @see https://github.com/firebase/firebase-admin-python/issues/188
@@ -49,6 +85,8 @@ initFirebase = firebase_admin.initialize_app(
         "projectId": os.environ["FIREBASE_PROJECT_ID"],
     },
 )
+
+
 
 
 logging.basicConfig(stream=sys.stdout, level=logging.INFO)
@@ -70,9 +108,6 @@ app.add_middleware(
 )
 
 baseURL = "/api/v1"
-
-
-
 
 class _BackgroundTaskQueue:
     """
@@ -114,7 +149,7 @@ class _BackgroundTaskQueue:
 BackgroundTaskQueue = _BackgroundTaskQueue()
 
 
-async def processAudio(data, sampleRate, id):
+async def processAudio(data, sampleRate, id, userEmail):
     """
     Start transcribing
     """
@@ -135,8 +170,6 @@ async def processAudio(data, sampleRate, id):
         )
         if torch.cuda.is_available():
             diarization_pipeline = diarization_pipeline.to(torch.device('cuda:0'))
-
-
 
         """
         Create our ASR pipeline (e.g. transcribing)
@@ -228,7 +261,7 @@ Attempt to find action items such as follow ups or next steps. If they exist mak
 Generate a title that is 50 characters or less.
 Only respond with the title and nothing else"""
 
-        meetingTitle = await queryModel(
+        meetingTitle: str = await queryModel(
             model=ModelTypes.gpt_4o,
             messages=[
                 ModelMessage(
@@ -242,6 +275,9 @@ Only respond with the title and nothing else"""
             # fallbackModels=[ModelTypes.llama_3_70b_instruct],
             maxGenLen=128000,
         )
+
+        # Remove leading or trailing '"' from the title
+        meetingTitle = meetingTitle.strip().strip('"')
 
         # Update our database now, make sure it hasn't been deleted first
         existingData = await prisma.meetingsummary.find_first(where={"id": id})
@@ -260,20 +296,68 @@ Only respond with the title and nothing else"""
 
 
         # Also save the transcript to the database
+        logger.info("Saving transcript to database")
         await prisma.meetingtranscript.create(
             data={
-                "transcript": transcription,
+                "transcript": outputs,
                 "meetingSummaryId": id
             }
         )
 
-        logger.info(f"GOT RESPONSE FROM SUMMARY: {meetingSummary}")
+        logger.info("Saving data to pinecone")
+        """
+        Create our embedding objects
+        """
+        model = SentenceTransformer('Alibaba-NLP/gte-large-en-v1.5', trust_remote_code=True)
+   
+
+        """
+        Now we want to embed and save things to pinecone
+        """
+        # Starting with the transcript,loop though each chunk, split up based on sentences, and save
+        finalTranscriptVectors = []
+        for index, chunk in enumerate(outputs):
+            speaker = chunk['speaker']
+            text = chunk['text']
+            sentences = nltk.sent_tokenize(text)
+            sentenceEmbeddings = model.encode(sentences)
+            for index, sentence in enumerate(sentences):
+                finalTranscriptVectors.append({
+                    "id": uuid.uuid4(), 
+                    "meetingId": id,
+                    "values": sentenceEmbeddings[index], 
+                    "metadata": {"speaker": speaker, "text": text}
+                })
+                
+        # Save this to pinecone now
+        transcriptIndex.upsert(
+            vectors=finalTranscriptVectors,
+            namespace=f"nh-{userEmail}"
+        )
+
+        # Now lets split up the summary into chunks
+        summaryChunks = nltk.sent_tokenize(meetingSummary)
+        finalSummaryVectors = []
+        for chunk in summaryChunks:
+            embedding = model.encode(chunk)
+            finalSummaryVectors.append({
+                "id": uuid.uuid4(), 
+                "values": embedding, 
+                "metadata": {"meetingId": id, "text": chunk}
+            })
+        
+        # Save this to pinecone now
+        summaryIndex.upsert(
+            vectors=finalSummaryVectors,
+            namespace=f"nh-{userEmail}"
+        )
+        logger.info("Done saving data to pinecone!")
 
     except Exception as e:
         logger.error("Error processing audio", e)
 
 
-async def startProcessAudio(data, sampleRate, id):
+async def startProcessAudio(data, sampleRate, id, userEmail):
     """
     Start processing audio in a new process, awaits till process finish
     so fast api knows about it (and doesn't stop the server mid-process)
@@ -281,7 +365,7 @@ async def startProcessAudio(data, sampleRate, id):
     logger.info(
         f"Starting process audio for id: {id}. Sending to background task queue"
     )
-    await BackgroundTaskQueue.startTask(processAudio, (data, sampleRate, id))
+    await BackgroundTaskQueue.startTask(processAudio, (data, sampleRate, id, userEmail))
 
 
 @app.middleware("http")
@@ -377,7 +461,7 @@ async def upload(
         }
     )
 
-    background_tasks.add_task(startProcessAudio, data=data, sampleRate=sampleRate, id=newData.id)
+    background_tasks.add_task(startProcessAudio, data=data, sampleRate=sampleRate, id=newData.id, userEmail=userEmail)
 
     """
     Return the user the Id of this meeting
@@ -425,6 +509,34 @@ async def getAudio(slug: str):
         responseFormatted = json.dumps(response, default=json_serial)
         return JSONResponse(status_code=200, content=responseFormatted)
 
+    responseFormatted = json.dumps(response, default=json_serial)
+    return JSONResponse(status_code=200, content=responseFormatted)
+
+@app.get(baseURL + "/search/{query}")
+async def search(query: str):
+    queryEmbeddings = model.encode([query])
+    print(queryEmbeddings)
+    queryEmbedding = queryEmbeddings[0]
+    """
+    Search both pinecone indexs
+    """
+    matchingTranscripts = transcriptIndex.query(
+        top_k=5,
+        vector=queryEmbedding,
+        include_metadata=True
+    )
+    matchingSummaries = summaryIndex.query(
+        top_k=5,
+        vector=queryEmbedding,
+        include_metadata=True
+    )
+    summariesToReturn = [{"meetingId": x['metadata']["meetingId"], "text": x['metadata']["text"]} for x in matchingSummaries.matches]
+    transcriptsToReturn = [{"meetingId": x['metadata']["meetingId"], "text": x['metadata']["text"]} for x in matchingTranscripts.matches]
+
+    response = {
+        "summaries": summariesToReturn,
+        "transcripts": transcriptsToReturn
+    }
     responseFormatted = json.dumps(response, default=json_serial)
     return JSONResponse(status_code=200, content=responseFormatted)
 

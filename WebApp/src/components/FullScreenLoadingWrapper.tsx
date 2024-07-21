@@ -8,5 +8,6 @@ export default function ReduxWrapper({
 }: {
   children: React.ReactNode;
 }) {
+  const loading;
   return <Provider store={store}>{children}</Provider>;
 }
