@@ -1,6 +1,9 @@
 "use client";
 
 import Loading from "@/components/Loading";
+import ShadCNLineGraph, {
+  ShadCNLineGraphDataPoint,
+} from "@/components/ShadCNLineGraph/ShadCNLineGraph";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -24,7 +27,7 @@ export default function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [recodingData, setRecodingData] = useState<
-    undefined | { id: string; name: string; date: Date }[]
+    undefined | { id: string; name: string; date: Date; processing: boolean }[]
   >(undefined);
   const [fileUploading, setFileUploading] = useState<boolean>(false);
 
@@ -56,21 +59,22 @@ export default function Home() {
   }, []);
 
   return (
-    <div className="bg-[#17181c] w-screen h-screen">
-      <div className="flex flex-col items-center justify-center pt-5 w-full">
-        <Card className="flex">
+    <div className="bg-[#17181c]">
+      <div className="flex flex-col items-center justify-center pt-5 w-full pb-20 bg-[#17181c]">
+        <Card className="flex my-1">
           <div className="p-3 flex items-center justify-center flex-col">
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-2 ] w-full ">
               <Image
                 src="/lytix-notes-logo.png"
                 alt="Lytix Logo"
-                width={100}
-                height={100}
+                width={35}
+                height={35}
               />
-              <h1 className="scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl text-black">
-                Record
+              <h1 className="scroll-m-20 text-2xl font-extrabold tracking-tight lg:text-2xl text-black">
+                NoteHound
               </h1>
             </div>
+
             <div className="py-1 flex gap-1 items-center justify-center w-full">
               {fileUploading === false ? (
                 <>
@@ -113,8 +117,43 @@ export default function Home() {
             </div>
           </div>
         </Card>
+        <div className="w-full">
+          <Card className="my-1  p-1 mx-1">
+            <div className="w-full">
+              <ShadCNLineGraph
+                title={"Past Week"}
+                subHeader="Data on your meeting habits"
+                generateData={function (
+                  startTime: dayjs.Dayjs,
+                  endTime: dayjs.Dayjs | "now"
+                ): Promise<{
+                  chartData: ShadCNLineGraphDataPoint[];
+                  allKeys: string[];
+                }> {
+                  return {
+                    chartData: [
+                      {
+                        something: 1,
+                        date: dayjs().subtract(1, "day").unix(),
+                      },
+                      {
+                        something: 0.5,
+                        date: dayjs().subtract(2, "day").unix(),
+                      },
+                      {
+                        something: 1,
+                        date: dayjs().subtract(3, "day").unix(),
+                      },
+                    ],
+                    allKeys: ["something"],
+                  };
+                }}
+              />
+            </div>
+          </Card>
+        </div>
 
-        <div className="w-full px-1 py-2">
+        <div className="w-full px-1 my-1 ">
           <Card>
             <div className="flex items-center justify-center gap-2">
               <IoRecordingSharp size={20} />
@@ -124,49 +163,57 @@ export default function Home() {
               </h2>
             </div>
             <Separator />
-            <div className=" flex items-start justify-center flex-col w-full">
-              <div className="w-full">
-                {recodingData === undefined ? (
-                  <div className="w-full flex items-center justify-center py-5">
-                    <Loading />
-                  </div>
-                ) : (
-                  <>
-                    {recodingData.map((item) => {
-                      return (
-                        <Button
-                          key={item.id}
-                          variant={"ghost"}
-                          size="noPadding"
-                          className="h-full m-1"
-                          onClick={() => {
-                            router.push(`/summary-info/${item.id}`);
-                          }}
-                        >
-                          <div className="flex items-center justify-start w-full rounded-md border border-gray-400  gap-2 p-1 ">
-                            <MdOutlineKeyboardArrowRight size={50} />
-                            <div>
-                              <p className="font-semibold w-full h-full text-wrap flex ">
-                                {item.name}
-                              </p>
-                              <p className="text-muted-foreground italic text-sm">
-                                {dayjs(item.date).format("DD/MM/YYYY HH:mm")}
-                              </p>
-                            </div>
+            <div className=" flex items-start justify-center flex-col w-full h-full">
+              {recodingData === undefined ? (
+                <div className="w-full flex items-center justify-center py-5">
+                  <Loading />
+                </div>
+              ) : (
+                <>
+                  {recodingData.map((item) => {
+                    return (
+                      <Button
+                        key={item.id}
+                        variant={"ghost"}
+                        size="noPadding"
+                        className="h-full w-full p-1 "
+                        onClick={() => {
+                          router.push(`/summary-info/${item.id}`);
+                        }}
+                      >
+                        <div className="flex items-center justify-start w-full rounded-md border border-gray-400  gap-2 p-1 ">
+                          <MdOutlineKeyboardArrowRight
+                            size={30}
+                            className="min-w-[10%]"
+                          />
+                          <div className="">
+                            <p className="font-semibold w-full h-full text-wrap flex ">
+                              {item.name}
+                            </p>
+                            <p className="text-muted-foreground italic text-sm">
+                              {dayjs(item.date).format("DD/MM/YYYY HH:mm")}
+                            </p>
                           </div>
-                        </Button>
-                      );
-                    })}
-                    {recodingData.length === 0 && (
-                      <div className="w-full flex items-center justify-center py-5">
-                        <p className="text-muted-foreground">
-                          Start by taking your first recording
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
+                          {item.processing && (
+                            <div className="w-full h-full flex justify-end items-end">
+                              <div className="inline-block pr-2">
+                                <Loading size="sm" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </Button>
+                    );
+                  })}
+                  {recodingData.length === 0 && (
+                    <div className="w-full flex items-center justify-center py-5">
+                      <p className="text-muted-foreground">
+                        Start by taking your first recording
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           </Card>
         </div>

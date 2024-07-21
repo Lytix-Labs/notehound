@@ -101,7 +101,7 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
           </div>
           <Card className="mx-1 mb-2 mt-3">
             {summaryData === undefined ? (
-              <div className=" px-5 pl-7 py-5 flex items-center justify-center">
+              <div className=" px-5 py-5 flex items-center justify-center">
                 <Loading />
               </div>
             ) : (

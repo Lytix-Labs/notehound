@@ -6,7 +6,7 @@ const Loading: React.FC<{ size?: "sm" | "lg" }> = ({ size = "lg" }) => {
   return (
     <div className="flex w-full h-full items-center justify-center">
       <div className="inline-block">
-        <Icons.spinner className={`mr-2 ${height} ${width} animate-spin`} />
+        <Icons.spinner className={`${height} ${width} animate-spin`} />
       </div>
     </div>
   );

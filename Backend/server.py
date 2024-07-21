@@ -174,7 +174,7 @@ async def processAudio(data, sampleRate, id):
         """
         Create our final pipeline with both ASR and Diarization
         """
-        pipeline = ASRDiarizationPipeline(
+        finalPipeline = ASRDiarizationPipeline(
             asr_pipeline=asr_pipeline, diarization_pipeline=diarization_pipeline
         )
 
@@ -194,7 +194,7 @@ async def processAudio(data, sampleRate, id):
 
         npData = np.array(data)
         logger.info("Starting transcription")
-        outputs = pipeline(npData)
+        outputs = finalPipeline(npData)
         logger.info(f"OUTPUTS: {outputs}")
         transcription = format_as_transcription(outputs)
         logger.info("Finished getting transcription, generating summary and title")
@@ -256,6 +256,7 @@ Only respond with the title and nothing else"""
                 "title": meetingTitle,
                 "summary": meetingSummary,
                 "duration": 1000,
+                "processing": False,
             },
             where={"id": id},
         )
@@ -341,6 +342,10 @@ async def upload(
         sound = AudioSegment.from_file(opus_data, codec=codec)
     else:
         sound = AudioSegment.from_file(opus_data)
+
+    # Convert to 16kHz
+    sound = sound.set_frame_rate(16000)
+
     data = sound.get_array_of_samples()
     sampleRate = sound.frame_rate
     duration = len(data) / sampleRate
@@ -374,8 +379,9 @@ async def getAllNotes(request: Request):
         allNotes.append(
             {
                 "id": note.id,
-                "name": note.title if note.title else "Processing...",
+                "name": note.title if note.title else "Processing",
                 "date": note.createdAt,
+                "processing": note.processing
             }
         )
     response = {"allNotes": allNotes}
