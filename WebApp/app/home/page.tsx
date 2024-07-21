@@ -120,7 +120,7 @@ export default function Home() {
           <Progress value={progressBar} />
         </DialogContent>
       </Dialog>
-      <div className="bg-[#17181c] min-h-screen">
+      <div className="bg-[#17181c] max-h-screen min-h-screen">
         <MenuBar />
         <div className="flex flex-col   pt-5 w-full pb-20 bg-[#17181c] max-h-screen overflow-y-scroll">
           <div className="w-full">

@@ -425,15 +425,15 @@ async def upload(
     """
     opus_data = BytesIO(file.file.read())
 
-    codec = (
-        "opus"
-        if format in ["audio/webm;codecs=opus", "audio/ogg;codecs=opus"]
-        else "m4a"
-    )
-    if codec == "opus":
-        sound = AudioSegment.from_file(opus_data, codec=codec)
-    else:
-        sound = AudioSegment.from_file(opus_data)
+    # codec = (
+    #     "opus"
+    #     if format in ["audio/webm;codecs=opus", "audio/ogg;codecs=opus"]
+    #     else "m4a"
+    # )
+    # if codec == "opus":
+    #     sound = AudioSegment.from_file(opus_data, codec=codec)
+    # else:
+    sound = AudioSegment.from_file(opus_data)
 
     # Convert to 16kHz
     sound = sound.set_frame_rate(16000)
@@ -507,9 +507,10 @@ async def getAudio(slug: str):
         "date": existingData.createdAt,
         "duration": existingData.duration,
         "summary": existingData.summary,
-        "transcript": transcript.transcript,
         # "rawAudio": rawAudio.rawAudio
     }
+    if transcript is not None:
+        response["transcript"] = transcript.transcript
 
     if existingData is None or existingData.processing is True:
         response["processing"] = True
@@ -549,7 +550,6 @@ async def search(query: str, request: Request):
         include_metadata=True,
         namespace=f"nh-{userEmail}"
     )
-    print(matchingSummaries)
     summariesToReturn = [{"meetingId": x['metadata']["meetingId"], "text": x['metadata']["text"]} for x in matchingSummaries.matches]
     transcriptsToReturn = [{"meetingId": x['metadata']["meetingId"], "text": x['metadata']["text"]} for x in matchingTranscripts.matches]
 
@@ -563,6 +563,8 @@ async def search(query: str, request: Request):
 
 @app.post(baseURL + "/deleteSummary/{slug}")
 async def deleteSummary(slug: str):
+    await prisma.mediasummaryraw.delete(where={"meetingSummaryId": slug})
+    await prisma.meetingtranscript.delete(where={"meetingSummaryId": slug})
     await prisma.meetingsummary.delete(where={"id": slug})
     return JSONResponse(status_code=200, content={"success": True})
 
@@ -657,3 +659,4 @@ def json_serial(obj):
 
 if __name__ == "__main__":
     uvicorn.run(app, loop="asyncio", port=4040, host="0.0.0.0", log_level="debug")
+ 
