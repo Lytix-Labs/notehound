@@ -86,7 +86,9 @@ class HttpClient {
     const response = await fetch(`${this.baseURL}/getMeetingData`, {
       credentials: "include",
     });
-    return JSON.parse(await response.json());
+    const jsonResponse = await response.json();
+    console.log(">>jsonResponse", jsonResponse);
+    return jsonResponse;
   }
 }
 

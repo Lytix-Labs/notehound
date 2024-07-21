@@ -341,7 +341,7 @@ async def upload(
     if codec == "opus":
         sound = AudioSegment.from_file(opus_data, codec=codec)
     else:
-        sound = AudioSegment.from_file(opus_data)
+        sound = AudioSegment.from_file(opus_data, format="m4a", codec="alac")
 
     # Convert to 16kHz
     sound = sound.set_frame_rate(16000)
