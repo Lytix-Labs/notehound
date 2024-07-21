@@ -266,7 +266,7 @@ Only respond with the title and nothing else"""
             messages=[
                 ModelMessage(
                     role="system",
-                    content="You are a helpful assistant whos job is come up with titles. Only respond with a title and nothing else",
+                    content="You are a helpful assistant. Your job is come up with titles. Only respond with a title and nothing else, do not include quotes around the title",
                 ),
                 ModelMessage(role="user", content=promptTitle),
             ],
@@ -299,7 +299,7 @@ Only respond with the title and nothing else"""
         logger.info("Saving transcript to database")
         await prisma.meetingtranscript.create(
             data={
-                "transcript": outputs,
+                "transcript": json.dumps(outputs),
                 "meetingSummaryId": id
             }
         )
@@ -455,7 +455,7 @@ async def upload(
     """
     await prisma.mediasummaryraw.create(
         data={
-            "audioBytes": rawData,
+            "rawAudio": [int(x) for x in rawData],
             "sampleRate": sampleRate,
             "meetingSummaryId": newData.id
         }
@@ -484,7 +484,8 @@ async def getAllNotes(request: Request):
                 "id": note.id,
                 "name": note.title if note.title else "Processing",
                 "date": note.createdAt,
-                "processing": note.processing
+                "processing": note.processing,
+                "duration": note.duration
             }
         )
     response = {"allNotes": allNotes}
@@ -583,6 +584,13 @@ async def session_login(request: Request):
         return JSONResponse(
             status_code=500, content={"message": "Failed to create a session cookie"}
         )
+
+
+@app.post(baseURL + "/logout")
+async def session_login(request: Request):
+    response = JSONResponse(status_code=200, content={"status": "success"})
+    response.delete_cookie("session")
+    return response
 
 @app.get(baseURL + "/getMeetingData")
 async def getUserMeetingHabits(request: Request):

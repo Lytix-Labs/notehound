@@ -111,6 +111,16 @@ class HttpClient {
       credentials: "include",
     });
   }
+
+  /**
+   * Logout and clear cookies
+   */
+  async logout() {
+    const response = await fetch(`${this.baseURL}/logout`, {
+      method: "POST",
+      credentials: "include",
+    });
+  }
 }
 
 const HttpClientInstance = new HttpClient();

@@ -14,6 +14,7 @@ const Summaries: React.FC<{
         name: string;
         date: Date;
         processing: boolean;
+        duration: number;
       }[]
     | [];
 }> = ({ recordingData }) => {
@@ -36,7 +37,7 @@ const Summaries: React.FC<{
             </div>
           ) : (
             <>
-              {recordingData.map((item) => {
+              {[...recordingData].map((item) => {
                 return (
                   <Button
                     key={item.id}
@@ -57,7 +58,8 @@ const Summaries: React.FC<{
                           {item.name}
                         </p>
                         <p className="text-muted-foreground italic text-xs text-left">
-                          {dayjs(item.date).format("DD/MM/YYYY HH:mm")}
+                          {dayjs(item.date).format("DD/MM/YYYY HH:mm")} -{" "}
+                          {(item.duration / 60).toFixed(2)} min
                         </p>
                       </div>
                       {item.processing && (

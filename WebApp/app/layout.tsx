@@ -21,7 +21,9 @@ export default function RootLayout({
     <html lang="en" className={GeistSans.className}>
       <body className={inter.className}>
         <ReduxWrapper>
-          <ToastWrapper>{children}</ToastWrapper>
+          <ToastWrapper>
+            <div>{children}</div>
+          </ToastWrapper>
         </ReduxWrapper>
       </body>
     </html>

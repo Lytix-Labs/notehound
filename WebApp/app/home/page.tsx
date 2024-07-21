@@ -20,6 +20,7 @@ import "../globals.css";
 
 import { MdClose, MdSearch } from "react-icons/md";
 import LookbackGraph from "./LookbackGraph";
+import MenuBar from "./MenuBar";
 import SearchResults from "./SearchResults";
 import Summaries from "./Summaries";
 
@@ -90,7 +91,8 @@ export default function Home() {
 
   return (
     <div className="bg-[#17181c] min-h-screen">
-      <div className="flex flex-col items-center justify-center pt-5 w-full pb-20 bg-[#17181c]">
+      <MenuBar />
+      <div className="flex flex-col   pt-5 w-full pb-20 bg-[#17181c] max-h-screen overflow-y-scroll">
         <div className="w-full">
           <Card className="flex my-1 mx-3">
             <div className="p-3 flex items-center justify-center w-full  ">

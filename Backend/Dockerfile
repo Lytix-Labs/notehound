@@ -9,7 +9,7 @@ RUN apt update && apt install -y ffmpeg git
 RUN pip3 install transformers huggingface-hub pyannote.audio torch optimodel-py accelerate firebase_admin pinecone nltk sentence_transformers
 RUN pip3 install git+https://github.com/sidpremkumar/speechbox
 # @see: https://huggingface.co/Alibaba-NLP/new-impl#recommendation-enable-unpadding-and-acceleration-with-xformers
-RUN pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu121
+# RUN pip3 install -U xformers --index-url https://download.pytorch.org/whl/cu121
 
 # First copy over Prisma file
 COPY schema.prisma schema.prisma

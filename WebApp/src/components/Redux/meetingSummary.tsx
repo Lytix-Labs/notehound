@@ -3,7 +3,13 @@ import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 export interface MeetingSummary {
   recordingData:
     | undefined
-    | { id: string; name: string; date: Date; processing: boolean }[];
+    | {
+        id: string;
+        name: string;
+        date: Date;
+        processing: boolean;
+        duration: number;
+      }[];
   searchResults:
     | undefined
     | {
@@ -25,7 +31,13 @@ export const counterSlice = createSlice({
       action: PayloadAction<{
         recordingData:
           | undefined
-          | { id: string; name: string; date: Date; processing: boolean }[];
+          | {
+              id: string;
+              name: string;
+              date: Date;
+              processing: boolean;
+              duration: number;
+            }[];
       }>
     ) => {
       state.recordingData = action.payload.recordingData;
