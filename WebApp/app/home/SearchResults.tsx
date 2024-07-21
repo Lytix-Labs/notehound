@@ -37,7 +37,7 @@ const SearchResults = ({ searchQuery }: { searchQuery: string }) => {
                     </p>
                   </div>
                 ) : (
-                  <div>
+                  <div className="flex flex-col px-3">
                     <p className="font-semibold ml-2 text-2xl">Transcripts</p>
                     <Separator className="my-2" />
                     {searchResults["transcripts"].map((transcript) => (
