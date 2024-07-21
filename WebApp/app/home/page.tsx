@@ -1,6 +1,8 @@
 "use client";
 
 import Loading from "@/components/Loading";
+import { setRecordingData } from "@/components/Redux/meetingSummary";
+import { RootState } from "@/components/Redux/store";
 import ShadCNLineGraph, {
   ShadCNLineGraphDataPoint,
 } from "@/components/ShadCNLineGraph/ShadCNLineGraph";
@@ -16,6 +18,7 @@ import { AudioRecorder } from "react-audio-voice-recorder";
 import { AiOutlineUpload } from "react-icons/ai";
 import { IoRecordingSharp } from "react-icons/io5";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
+import { useDispatch, useSelector } from "react-redux";
 import "../globals.css";
 
 export default function Home() {
@@ -26,9 +29,11 @@ export default function Home() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [recodingData, setRecodingData] = useState<
-    undefined | { id: string; name: string; date: Date; processing: boolean }[]
-  >(undefined);
+  const dispatch = useDispatch();
+  const recordingData = useSelector(
+    (state: RootState) => state.meetingSummary.recordingData
+  );
+
   const [isRecording, setIsRecording] = useState<boolean>(false);
   const [fileUploading, setFileUploading] = useState<boolean>(false);
 
@@ -45,6 +50,12 @@ export default function Home() {
       if (file) {
         const response = await HttpClientInstance.uploadAudio(file);
         router.push(`/summary-info/${response["id"]}`);
+
+        /**
+         * Update all notes
+         */
+        const allNotes = await HttpClientInstance.getAllNotes();
+        dispatch(setRecordingData(allNotes["allNotes"]));
       }
     } finally {
       setFileUploading(false);
@@ -54,9 +65,12 @@ export default function Home() {
   useEffect(() => {
     Promise.resolve().then(async () => {
       const response = await HttpClientInstance.getAllNotes();
-      setRecodingData(response["allNotes"]);
+      dispatch(setRecordingData({ recordingData: response["allNotes"] }));
+      console.log(`>>recordingData1`, recordingData, response);
     });
   }, []);
+
+  console.log(`>>recordingData2`, recordingData);
 
   return (
     <div className="bg-[#17181c] min-h-screen">
@@ -158,8 +172,6 @@ export default function Home() {
                 }> => {
                   const data = await HttpClientInstance.getMeetingData();
                   const meetingsOver7Days = data["meetingsOver7Days"];
-                  console.log(`>>data`, data);
-                  console.log(`>>meetingsOver7Days`, meetingsOver7Days);
                   const chartData: ShadCNLineGraphDataPoint[] = [];
                   for (const meeting of meetingsOver7Days) {
                     chartData.push({
@@ -189,13 +201,13 @@ export default function Home() {
             </div>
             <Separator />
             <div className=" flex items-start justify-center flex-col w-full h-full">
-              {recodingData === undefined ? (
+              {recordingData === undefined ? (
                 <div className="w-full flex items-center justify-center py-5">
                   <Loading />
                 </div>
               ) : (
                 <>
-                  {recodingData.map((item) => {
+                  {recordingData.map((item) => {
                     return (
                       <Button
                         key={item.id}
@@ -230,7 +242,7 @@ export default function Home() {
                       </Button>
                     );
                   })}
-                  {recodingData.length === 0 && (
+                  {recordingData.length === 0 && (
                     <div className="w-full flex items-center justify-center py-5">
                       <p className="text-muted-foreground">
                         Start by taking your first recording

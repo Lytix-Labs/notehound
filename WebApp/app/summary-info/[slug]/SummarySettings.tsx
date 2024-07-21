@@ -1,3 +1,4 @@
+import { setRecordingData } from "@/components/Redux/meetingSummary";
 import { Button } from "@/components/ui/button";
 import {
   SheetContent,
@@ -8,6 +9,7 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import HttpClientInstance from "@/httpClient/HttpClient";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
 
 const SummarySettings: React.FC<{ id: string; summary: string }> = ({
   id,
@@ -15,6 +17,7 @@ const SummarySettings: React.FC<{ id: string; summary: string }> = ({
 }) => {
   const { toast } = useToast();
   const router = useRouter();
+  const dispatch = useDispatch();
 
   const deleteSummary = async () => {
     await HttpClientInstance.deleteSummary(id);
@@ -22,6 +25,12 @@ const SummarySettings: React.FC<{ id: string; summary: string }> = ({
       title: "Summary deleted 🚀",
       description: "The summary has been deleted",
     });
+
+    /**
+     * Req query recordings to display in homepage
+     */
+    const allNotes = await HttpClientInstance.getAllNotes();
+    dispatch(setRecordingData(allNotes["allNotes"]));
     router.back();
   };
 

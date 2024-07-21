@@ -1,12 +1,13 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { useDispatch } from "react-redux";
 import globalTimeReducer from "./globalTimeReducer";
+import meetingSummaryReducer from "./meetingSummary";
 
 const appReducer = combineReducers({
   globalTime: globalTimeReducer,
+  meetingSummary: meetingSummaryReducer,
 });
 
-// @ts-ignore
 const rootReducer = (state, action) => {
   if (action.type === "USER_LOGOUT") {
     return appReducer(undefined, action);

@@ -85,8 +85,6 @@ const ShadCNLineGraph: React.FC<{
     })
     .flat();
 
-  console.log(chartConfig);
-
   //   const timeScale = scaleTime()
   //     .domain([
   //       startTime.unix(),
