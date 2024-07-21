@@ -87,8 +87,7 @@ class HttpClient {
       credentials: "include",
     });
     const jsonResponse = await response.json();
-    console.log(">>jsonResponse", jsonResponse);
-    return jsonResponse;
+    return JSON.parse(jsonResponse);
   }
 }
 

@@ -145,6 +145,8 @@ export default function Home() {
                 }> => {
                   const data = await HttpClientInstance.getMeetingData();
                   const meetingsOver7Days = data["meetingsOver7Days"];
+                  console.log(`>>data`, data);
+                  console.log(`>>meetingsOver7Days`, meetingsOver7Days);
                   const chartData: ShadCNLineGraphDataPoint[] = [];
                   for (const meeting of meetingsOver7Days) {
                     chartData.push({
