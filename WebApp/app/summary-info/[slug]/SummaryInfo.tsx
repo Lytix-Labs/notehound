@@ -51,7 +51,14 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
     <>
       <div className="bg-[#17181c] w-screen h-screen overflow-y-scroll">
         <Sheet open={openSettings} onOpenChange={setOpenSettings}>
-          <SummarySettings id={id} summary={summaryData?.summary ?? ""} />
+          <SummarySettings
+            id={id}
+            summary={summaryData?.summary ?? ""}
+            title={summaryData?.name ?? ""}
+            duration={summaryData?.duration ?? 0}
+            date={summaryData?.date ?? new Date()}
+            setSummaryData={setSummaryData}
+          />
         </Sheet>
         <div className="flex w-full mt-3">
           <div>

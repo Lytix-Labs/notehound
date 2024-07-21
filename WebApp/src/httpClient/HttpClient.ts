@@ -100,6 +100,17 @@ class HttpClient {
     const jsonResponse = await response.json();
     return JSON.parse(jsonResponse);
   }
+
+  /**
+   * Update a title for a summary
+   */
+  async updateSummary(args: { id: string; title: string }) {
+    const response = await fetch(`${this.baseURL}/updateSummary`, {
+      method: "POST",
+      body: JSON.stringify({ id: args.id, title: args.title }),
+      credentials: "include",
+    });
+  }
 }
 
 const HttpClientInstance = new HttpClient();

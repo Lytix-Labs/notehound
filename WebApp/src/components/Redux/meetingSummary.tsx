@@ -10,12 +10,14 @@ export interface MeetingSummary {
         summaries: { meetingId: string; text: string }[];
         transcripts: { meetingId: string; text: string }[];
       };
+  meetingData: any;
 }
 export const counterSlice = createSlice({
   name: "meetingSummary",
   initialState: {
     recordingData: undefined,
     searchResults: undefined,
+    meetingData: undefined,
   } as MeetingSummary,
   reducers: {
     setRecordingData: (
@@ -34,10 +36,17 @@ export const counterSlice = createSlice({
     ) => {
       state.searchResults = action.payload.searchResults;
     },
+    setMeetingData: (
+      state,
+      action: PayloadAction<{ meetingData: MeetingSummary["meetingData"] }>
+    ) => {
+      state.meetingData = action.payload.meetingData;
+    },
   },
   selectors: {},
 });
 
-export const { setRecordingData, setSearchResults } = counterSlice.actions;
+export const { setRecordingData, setSearchResults, setMeetingData } =
+  counterSlice.actions;
 
 export default counterSlice.reducer;

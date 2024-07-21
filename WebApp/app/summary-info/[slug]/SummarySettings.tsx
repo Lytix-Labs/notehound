@@ -1,6 +1,14 @@
 import { setRecordingData } from "@/components/Redux/meetingSummary";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import {
   SheetContent,
   SheetDescription,
   SheetHeader,
@@ -9,15 +17,28 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import HttpClientInstance from "@/httpClient/HttpClient";
 import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
-const SummarySettings: React.FC<{ id: string; summary: string }> = ({
-  id,
-  summary,
-}) => {
+const SummarySettings: React.FC<{
+  id: string;
+  summary: string;
+  title: string;
+  duration: number;
+  date: Date;
+  setSummaryData: (data: {
+    id: string;
+    summary: string;
+    name: string;
+    date: Date;
+    duration: number;
+  }) => void;
+}> = ({ id, summary, title, date, duration, setSummaryData }) => {
   const { toast } = useToast();
   const router = useRouter();
   const dispatch = useDispatch();
+  const [openEditTitle, setOpenEditTitle] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
 
   const deleteSummary = async () => {
     await HttpClientInstance.deleteSummary(id);
@@ -42,22 +63,61 @@ const SummarySettings: React.FC<{ id: string; summary: string }> = ({
     });
   };
 
+  const saveNewTitleForSummary = async () => {
+    await HttpClientInstance.updateSummary({ id, title: newTitle });
+    toast({
+      title: "Title updated 🚀",
+      description: "The title has been updated",
+    });
+    setSummaryData({ id, summary, name: newTitle, date, duration });
+    setOpenEditTitle(false);
+  };
+
+  useEffect(() => {
+    setNewTitle(title);
+  }, [title]);
+
   return (
-    <SheetContent className="h-full  items-center justify-center">
-      <SheetHeader>
-        <SheetTitle>Summary Settings</SheetTitle>
-        <SheetDescription>
+    <>
+      <Dialog open={openEditTitle} onOpenChange={setOpenEditTitle}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Update Title</DialogTitle>
+            <DialogDescription>Update the title of this note</DialogDescription>
+          </DialogHeader>
           <div className="flex flex-col gap-2">
-            <Button variant="default" onClick={copyToClipboard}>
-              Copy To Clipboard
-            </Button>
-            <Button variant="destructive" onClick={deleteSummary}>
-              Delete
+            <Input
+              type="text"
+              placeholder="Enter new title"
+              onChange={(e) => setNewTitle(e.target.value)}
+              value={newTitle}
+            />
+            <Button variant="default" onClick={() => saveNewTitleForSummary()}>
+              Update
             </Button>
           </div>
-        </SheetDescription>
-      </SheetHeader>
-    </SheetContent>
+        </DialogContent>
+      </Dialog>
+      <SheetContent className="h-full  items-center justify-center">
+        <SheetHeader>
+          <SheetTitle>Summary Settings</SheetTitle>
+          <SheetDescription>
+            <div className="flex flex-col gap-2">
+              <Button variant="default" onClick={() => setOpenEditTitle(true)}>
+                ✍️ Update Title
+              </Button>
+              <Button variant="default" onClick={copyToClipboard}>
+                📋 Copy To Clipboard
+              </Button>
+
+              <Button variant="destructive" onClick={deleteSummary}>
+                Delete
+              </Button>
+            </div>
+          </SheetDescription>
+        </SheetHeader>
+      </SheetContent>
+    </>
   );
 };
 

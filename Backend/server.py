@@ -512,6 +512,15 @@ async def getAudio(slug: str):
     responseFormatted = json.dumps(response, default=json_serial)
     return JSONResponse(status_code=200, content=responseFormatted)
 
+@app.post(baseURL + "/updateSummary")
+async def updateSummary(request: Request):
+    jsonData = await request.json()
+    await prisma.meetingsummary.update(
+        data={"title": jsonData["title"]},
+        where={"id": jsonData["id"]}
+    )
+    return JSONResponse(status_code=200, content={"success": True})
+
 @app.get(baseURL + "/search/{query}")
 async def search(query: str):
     queryEmbeddings = model.encode([query])

@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@radix-ui/react-separator";
 import dayjs from "dayjs";
-import router from "next/router";
+import { useRouter } from "next/navigation";
 import { IoRecordingSharp } from "react-icons/io5";
 import { MdOutlineKeyboardArrowRight } from "react-icons/md";
 
@@ -17,6 +17,7 @@ const Summaries: React.FC<{
       }[]
     | [];
 }> = ({ recordingData }) => {
+  const router = useRouter();
   return (
     <div className="w-full px-3 my-1 ">
       <Card>
