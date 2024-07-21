@@ -27,7 +27,7 @@ function getCookie(name: string) {
 }
 
 export default function Login() {
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const { toast } = useToast();
   async function onSubmit(event: React.SyntheticEvent) {
@@ -58,9 +58,15 @@ export default function Login() {
 
   useEffect(() => {
     Promise.resolve().then(async () => {
-      const userIsLoggedIn = await HttpClientInstance.getUserIsLoggedIn();
-      if (userIsLoggedIn.success) {
-        router.push("/home/");
+      try {
+        const userIsLoggedIn = await HttpClientInstance.getUserIsLoggedIn();
+        if (userIsLoggedIn.success) {
+          router.push("/home/");
+        } else {
+          setIsLoading(false);
+        }
+      } catch (error) {
+        setIsLoading(false);
       }
     });
   }, []);

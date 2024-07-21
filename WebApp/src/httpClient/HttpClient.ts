@@ -76,7 +76,7 @@ class HttpClient {
     const response = await fetch(`${this.baseURL}/getUserIsLoggedIn`, {
       credentials: "include",
     });
-    return JSON.parse(await response.json());
+    return await response.json();
   }
 
   /**

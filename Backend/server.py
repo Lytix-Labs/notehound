@@ -349,6 +349,9 @@ async def upload(
     data = sound.get_array_of_samples()
     sampleRate = sound.frame_rate
     duration = len(data) / sampleRate
+    print(f"Duration: {duration}")
+    print(f'Sample rate: {sampleRate}')
+    print(f'DataLen: {len(data)}')
 
     """
     Save this in our database as processing
@@ -372,7 +375,8 @@ async def upload(
 @app.get(baseURL + "/getAllNotes")
 async def getAllNotes(request: Request):
     allNotesRaw = await prisma.meetingsummary.find_many(
-        where={"userEmail": request.state.userEmail}
+        where={"userEmail": request.state.userEmail},
+        order={"createdAt": "desc"}
     )
     allNotes = []
     for note in allNotesRaw:
