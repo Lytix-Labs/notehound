@@ -566,7 +566,7 @@ async def search(query: str, request: Request):
 
 
 @app.post(baseURL + "/deleteSummary/{slug}")
-async def deleteSummary(slug: str):
+async def deleteSummary(slug: str, request: Request):
     userEmail = request.state.userEmail
     await prisma.mediasummaryraw.delete(where={"meetingSummaryId": slug})
     await prisma.meetingtranscript.delete(where={"meetingSummaryId": slug})

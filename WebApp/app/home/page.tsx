@@ -58,7 +58,7 @@ export default function Home() {
         await new Promise((resolve) =>
           setTimeout(resolve, Math.random() * 150)
         );
-        newProgressBarValue = 5 * 1.5;
+        newProgressBarValue = newProgressBarValue + 5 * 1.5;
         setProgressBar(newProgressBarValue);
       }
     });
@@ -108,7 +108,7 @@ export default function Home() {
   };
 
   return (
-    <div className="max-h-screen min-h-screen relative">
+    <div className="max-h-screen min-h-screen relative  ">
       <Dialog open={fileUploading === true}>
         <DialogContent>
           <p className="scroll-m-20 text-xl font-extrabold tracking-tight lg:text-xl">

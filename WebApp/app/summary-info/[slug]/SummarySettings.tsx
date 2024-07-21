@@ -54,7 +54,7 @@ const SummarySettings: React.FC<{
      */
     const allNotes = await HttpClientInstance.getAllNotes();
     dispatch(setRecordingData(allNotes["allNotes"]));
-    router.back();
+    router.replace("/home");
   };
 
   const copyToClipboard = async () => {
