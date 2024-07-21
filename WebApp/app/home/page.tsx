@@ -151,7 +151,7 @@ export default function Home() {
                       "Number of meetings": meeting["Number of meetings"],
                       date: dayjs(meeting["date"]).unix(),
                     });
-                    console.log(`chartData:`, chartData);
+                    // console.log(`chartData:`, chartData);
                   }
                   return {
                     chartData: chartData,
@@ -197,7 +197,7 @@ export default function Home() {
                             className="min-w-[10%]"
                           />
                           <div className="">
-                            <p className="font-semibold w-full h-full text-wrap flex ">
+                            <p className="font-semibold w-full h-full text-wrap flex text-left ">
                               {item.name}
                             </p>
                             <p className="text-muted-foreground italic text-sm">
