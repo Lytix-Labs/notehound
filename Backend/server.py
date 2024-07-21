@@ -512,33 +512,6 @@ async def getUserMeetingHabits(request: Request):
             "Number of meetings": meeting["count"]
         })
     
-    
-
-    #     const queryResults: {
-    #   interval_start: string;
-    #   avg?: number;
-    #   min?: number;
-    #   max?: number;
-    #   sum?: number;
-    #   count: number;
-    # }[] = await prisma.$queryRawUnsafe(`
- 
-    # `);
-    # console.log(
-    #   `>>>enddd, duration=${new Date().getTime() - startTime.getTime()}`
-    # );
-
-    print(meetingsOver7Days)
-
-
-    # finalData = []
-    # for meeting in numberOfMeetingsOver7Days:
-    #     finalData.append({
-    #         "date": meeting.createdAt.timestamp(),
-    #         "numberOfMeetings": 1
-    #     })
-
-
     response = {
         "meetingsOver7Days": meetingsOver7DaysFormatted
     }

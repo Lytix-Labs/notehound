@@ -148,14 +148,14 @@ export default function Home() {
                   const chartData: ShadCNLineGraphDataPoint[] = [];
                   for (const meeting of meetingsOver7Days) {
                     chartData.push({
-                      "Number of meetings": meeting["Number of meetings"],
+                      "Number of summaries": meeting["Number of meetings"],
                       date: dayjs(meeting["date"]).unix(),
                     });
                     // console.log(`chartData:`, chartData);
                   }
                   return {
                     chartData: chartData,
-                    allKeys: ["Number of meetings"],
+                    allKeys: ["Number of summaries"],
                   };
                 }}
               />

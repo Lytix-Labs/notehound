@@ -77,6 +77,7 @@ const ShadCNLineGraph: React.FC<{
   const chartConfig = {};
   allKeys
     .map((key, index) => {
+      // @ts-ignore
       chartConfig[key] = {
         label: key,
         color: `hsl(var(--chart-${index}))`,

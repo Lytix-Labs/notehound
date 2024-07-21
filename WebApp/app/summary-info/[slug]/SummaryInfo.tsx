@@ -51,7 +51,7 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
     <>
       <div className="bg-[#17181c] w-screen h-screen overflow-y-scroll">
         <Sheet open={openSettings} onOpenChange={setOpenSettings}>
-          <SummarySettings id={id} />
+          <SummarySettings id={id} summary={summaryData?.summary ?? ""} />
         </Sheet>
         <div className="flex flex-col items-center justify-center pt-5 w-full">
           <div className="flex items-center justify-center">
@@ -99,13 +99,13 @@ const SummaryInfo: React.FC<{ id: string }> = ({ id }) => {
               </div>
             )}
           </div>
-          <Card className="mx-1 mb-2 mt-3">
+          <Card className="mx-1 mb-2 mt-3 mb-20">
             {summaryData === undefined ? (
               <div className=" px-5 py-5 flex items-center justify-center">
                 <Loading />
               </div>
             ) : (
-              <div className="p-1">
+              <div className="p-1 ">
                 <ReactMarkdown
                   remarkPlugins={[remarkGfm]}
                   components={{
