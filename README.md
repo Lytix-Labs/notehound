@@ -20,11 +20,19 @@
         <img src="https://github.com/Lytix-Labs/notehound/blob/master/assets/landing-page-gif.gif?raw=true" alt="Landing Page Demo">
 </p>
 
+## Screenshots
+
+View a summary of your recent meetings (image 1). Automatically generate notes and actions items or see the transcription (image 2). Search across your notes using natural language via Pinecone (image 3).
+
+<p align="center">
+    <img src="./assets/homepage-example.png" alt="Homepage Example" height="250"/>
+    <img src="./assets/meeting-notes-example.png" alt="Meeting Notes Example" height="250"/>
+    <img src="./assets/search-example.png" alt="Search Example" height="250"/>
+</p>
+
 ## Live demo
 
 [**Check it out here 🚀**](https://notes.lytix.co)
-
-
 
 ## Quickstart
 
