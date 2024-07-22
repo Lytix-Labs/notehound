@@ -17,9 +17,7 @@
 </p>
 
 <p align="center">
-    <a href="https://notehound.lytix.co">
-        <img src="https://img.shields.io/badge/Live%20Demo-Notehound-blue" alt="Notehound">
-    </a>
+        <img src="https://github.com/Lytix-Labs/notehound/blob/master/assets/landing-page-gif.gif?raw=true" alt="Landing Page Demo">
 </p>
 
 ## Live demo
