@@ -113,3 +113,8 @@ dist
 
 **__pycache__
 **/venv
+**.DS_Store
+**.egg-info
+**/dist
+**/node_modules
+**/babel-cache
