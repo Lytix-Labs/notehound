@@ -38,6 +38,7 @@ View a summary of your recent meetings (image 1). Automatically generate notes a
 
 #### Prerequisites
 
+- [Lytix](https://lytix.co) account. Instruction on how to get an API key can be found [here](https://docs.lytix.co/api-key-setup)
 - [Pinecone](https://www.pinecone.io/) account
   - Pinecone API key (see [here](https://docs.pinecone.io/guides/get-started/authentication#find-your-pinecone-api-key))
 - Access to an RDS database, in our case we used [AWS RDS](https://aws.amazon.com/rds/)
@@ -63,6 +64,7 @@ pip install -r req.txt
 
 Defined our env vars
 
+- `LX_API_KEY`: [Lytix API Key](https://docs.lytix.co/api-key-setup)
 - `PINECONE_API_KEY`: [Pinecone API Key](https://www.pinecone.io/docs/api-keys/)
 - `FIREBASE_PROJECT_ID`: [Firebase Project ID](https://console.firebase.google.com/project/lytix-806ad/settings/general)
 - `DATABASE_URL`: [RDS Database URL](https://console.aws.amazon.com/rds/home?region=us-east-1#dbinstances:id=lytixnote;is-cluster=false). E.g. `postgresql://{{ username }}:{{password }}@{{host }}:{{port }}/{{database }}`
