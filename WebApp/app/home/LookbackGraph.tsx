@@ -41,10 +41,6 @@ const LookbackGraph = () => {
                 });
                 // console.log(`chartData:`, chartData);
               }
-              chartData.push({
-                "Number of summaries": 1,
-                date: dayjs().unix(),
-              });
               return {
                 chartData: chartData,
                 allKeys: ["Number of summaries"],

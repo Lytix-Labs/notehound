@@ -28,6 +28,20 @@ import Summaries from "./Summaries";
 
 export default function Home() {
   const addAudioElement = async (blob: Blob) => {
+    /**
+     * In the background slowly just keep creeping up
+     */
+    Promise.resolve().then(async () => {
+      let newProgressBarValue = 0;
+      while (newProgressBarValue < 100) {
+        await new Promise((resolve) =>
+          setTimeout(resolve, Math.random() * 1000 + 500)
+        );
+        newProgressBarValue = newProgressBarValue + 5 * 1.5;
+        setProgressBar(newProgressBarValue);
+      }
+    });
+
     const response = await HttpClientInstance.uploadAudio(blob);
     router.push(`/summary-info/${response["id"]}`);
   };
