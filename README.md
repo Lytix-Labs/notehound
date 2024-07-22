@@ -127,7 +127,7 @@ npm run dev
 
 ## Architecture
 
-All requests are routed first thoughtt [server.py](https://github.com/lytix-labs/notehound/blob/master/Backend/server.py).
+All requests are routed first through [server.py](https://github.com/lytix-labs/notehound/blob/master/Backend/server.py).
 
 The processing jobs happen on the server itself (to keep things simple), so there is no external celery worker or message queue.
 
