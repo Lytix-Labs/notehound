@@ -22,7 +22,7 @@
 
 ## Live demo
 
-[**Check it out here 🚀**](https://notehound.lytix.co)
+[**Check it out here 🚀**](https://notes.lytix.co)
 
 ## Screenshots
 
