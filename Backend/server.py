@@ -255,7 +255,7 @@ Attempt to find action items such as follow ups or next steps. If they exist mak
             speedPriority="high",
             # validator=validator,
             # fallbackModels=[ModelTypes.llama_3_70b_instruct],
-            maxGenLen=128000,
+            # maxGenLen=128000,
         )
 
         # Generate a title based on the summary
@@ -275,7 +275,7 @@ Only respond with the title and nothing else"""
             speedPriority="high",
             # validator=validator,
             # fallbackModels=[ModelTypes.llama_3_70b_instruct],
-            maxGenLen=128000,
+            # maxGenLen=128000,
         )
 
         # Remove leading or trailing '"' from the title
